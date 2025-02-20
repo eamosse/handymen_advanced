@@ -1,6 +1,7 @@
 package com.vama.android.handymen.ui.favorites
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -56,6 +57,9 @@ class FavoritesFragment: Fragment() {
             onDeleteClick = { user ->
                 // Show confirmation dialog before deleting
                 showDeleteConfirmationDialog(user)
+            },
+            onShareClick = { user ->
+                shareUserProfile(user)
             }
         )
 
@@ -67,7 +71,7 @@ class FavoritesFragment: Fragment() {
 
     private fun observeFavorites() {
         viewModel.favorites.observe(viewLifecycleOwner) { favorites ->
-            // Convert User to UserModelView if necessary
+            // Convertir les utilisateurs favoris en UserModelView avec l'URL de l'avatar
             val favoriteModelViews = favorites.map { user ->
                 com.vama.android.handymen.model.UserModelView(
                     id = user.id,
@@ -76,8 +80,8 @@ class FavoritesFragment: Fragment() {
                     phoneNumber = user.phoneNumber,
                     webSite = user.webSite,
                     aboutMe = user.aboutMe,
-                    favorite = false,
-                    avatarUrl = ""
+                    favorite = user.favorite,
+                    avatarUrl = user.avatarUrl
                 )
             }
 
@@ -111,5 +115,16 @@ class FavoritesFragment: Fragment() {
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }
+    }
+    private fun shareUserProfile(user: UserModelView) {
+        val shareText = sharedViewModel.shareUserProfile(user)
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, "Profil de ${user.name}")
+            putExtra(Intent.EXTRA_TEXT, shareText)
+        }
+
+        startActivity(Intent.createChooser(shareIntent, "Partager le profil"))
     }
 }

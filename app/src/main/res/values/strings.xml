@@ -26,6 +26,7 @@
     <string name="field_required">This field is required</string>
     <string name="user_added_success">User successfully added</string>
     <string name="user_added_error">Error while adding user</string>
+    <string name="share_icon">Share profile</string>
 
     <!--    User deletion alert   -->
     <string name="delete_user_title">Delete User</string>

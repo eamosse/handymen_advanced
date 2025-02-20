@@ -2,23 +2,27 @@ package com.vama.android.handymen.ui.home
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.vama.android.handymen.R
 import com.vama.android.handymen.databinding.UserItemBinding
 import com.vama.android.handymen.model.UserModelView
+import coil.load
+import coil.transform.CircleCropTransformation
 
 class UsersAdapter(
     private val onFavoriteClick: (UserModelView) -> Unit,
-    private val onDeleteClick: (UserModelView) -> Unit
+    private val onDeleteClick: (UserModelView) -> Unit,
+    private val onShareClick: (UserModelView) -> Unit
 ) : RecyclerView.Adapter<UserViewHolder>() {
     private val mDiffer: AsyncListDiffer<UserModelView> = AsyncListDiffer(this, DiffCallback)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
         val inflater: LayoutInflater = LayoutInflater.from(parent.context)
         val binding: UserItemBinding = UserItemBinding.inflate(inflater, parent, false)
-        return UserViewHolder(binding, onFavoriteClick, onDeleteClick)
+        return UserViewHolder(binding, onFavoriteClick, onDeleteClick, onShareClick)
     }
 
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
@@ -53,7 +57,8 @@ class UsersAdapter(
 class UserViewHolder(
     private val binding: UserItemBinding,
     private val onFavoriteClick: (UserModelView) -> Unit,
-    private val onDeleteClick: (UserModelView) -> Unit
+    private val onDeleteClick: (UserModelView) -> Unit,
+    private val onShareClick: (UserModelView) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
     private var currentUser: UserModelView? = null
 
@@ -67,6 +72,12 @@ class UserViewHolder(
         binding.delete.setOnClickListener {
             currentUser?.let { user -> onDeleteClick(user) }
         }
+
+        // Ajout de l'icône de partage
+        val shareIcon = binding.root.findViewById<ImageView>(R.id.share)
+        shareIcon.setOnClickListener {
+            currentUser?.let { user -> onShareClick(user) }
+        }
     }
 
     fun bind(user: UserModelView) {
@@ -76,6 +87,15 @@ class UserViewHolder(
         binding.phoneNumber.text = user.phoneNumber
         binding.webSite.text = user.webSite
         binding.aboutMe.text = user.aboutMe
+
+        // ajoute "?seed=${user.name}" à l'URL de l'avatar
+        val avatarUrl = "${user.avatarUrl}?seed=${user.name}"
+        binding.imageProfile.load(avatarUrl) {
+            crossfade(true)
+            transformations(CircleCropTransformation())
+            placeholder(R.drawable.ic_profile_placeholder)
+            error(R.drawable.ic_profile_placeholder)
+        }
 
         // Set favorite icon
         val favoriteIcon = if (user.favorite) {

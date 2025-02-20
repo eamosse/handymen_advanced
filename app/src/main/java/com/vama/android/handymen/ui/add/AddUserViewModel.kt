@@ -18,7 +18,7 @@ class AddUserViewModel : ViewModel() {
         val newUser = User(
             id = 0,
             name = name,
-            avatarUrl = "",
+            avatarUrl = "https://api.dicebear.com/9.x/miniavs/png",
             address = address,
             phoneNumber = phone,
             aboutMe = aboutMe,

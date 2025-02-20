@@ -6,7 +6,7 @@ import com.vama.android.data.model.User
 internal val Dummy_Users: List<User> = listOf(
     User(
         id = 1, name = "Caroline",
-        avatarUrl = "https://i.picsum.photos/id/1011/5472/3648.jpg?hmac=Koo9845x2akkVzVFX3xxAc9BCkeGYA9VRVfLE4f0Zzk",
+        avatarUrl = "https://api.dicebear.com/9.x/miniavs/png",
         address = "Saint-Pierre-du-Mont ; 5km",
         phoneNumber = "+33 6 86 57 90 14",
         aboutMe = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
@@ -20,7 +20,7 @@ internal val Dummy_Users: List<User> = listOf(
     User(
         id = 2,
         name = "Jack",
-        avatarUrl = "https://i.picsum.photos/id/1012/3973/2639.jpg?hmac=s2eybz51lnKy2ZHkE2wsgc6S81fVD1W2NKYOSh8bzDc",
+        avatarUrl = "https://api.dicebear.com/9.x/miniavs/png",
         address = "Saint-Pierre-du-Mont ; 5km",
         phoneNumber = "+33 6 00 55 90 14",
         aboutMe = ("Sed eget fringilla mauris, ac rutrum mauris. Curabitur finibus felis id justo porttitor, " +
@@ -40,7 +40,7 @@ internal val Dummy_Users: List<User> = listOf(
     User(
         id = 3,
         name = "Chloé",
-        avatarUrl = "https://i.picsum.photos/id/1027/2848/4272.jpg?hmac=EAR-f6uEqI1iZJjB6-NzoZTnmaX0oI0th3z8Y78UpKM",
+        avatarUrl = "https://api.dicebear.com/9.x/miniavs/png",
         address = "Saint-Pierre-du-Mont ; 6km",
         phoneNumber = "+33 6 86 13 12 14",
         aboutMe = "Sed ultricies suscipit semper. Fusce non blandit quam. ",
@@ -50,7 +50,7 @@ internal val Dummy_Users: List<User> = listOf(
     User(
         id = 4,
         name = "Vincent",
-        avatarUrl = "https://i.picsum.photos/id/22/4434/3729.jpg?hmac=fjZdkSMZJNFgsoDh8Qo5zdA_nSGUAWvKLyyqmEt2xs0",
+        avatarUrl = "https://api.dicebear.com/9.x/miniavs/png",
         address = "Saint-Pierre-du-Mont ; 11km",
         phoneNumber = "+33 6 10 57 90 19",
         aboutMe = ("Etiam quis neque egestas, consectetur est quis, laoreet augue. " +
@@ -63,7 +63,7 @@ internal val Dummy_Users: List<User> = listOf(
     User(
         id = 5,
         name = "Elodie",
-        avatarUrl = "https://i.picsum.photos/id/399/2048/1365.jpg?hmac=Tm7jwbWj0i70u952g5yC0da-gxScdY2mQ6gjKrP8Haw",
+        avatarUrl = "https://api.dicebear.com/9.x/miniavs/png",
         address = "Saint-Pierre-du-Mont ; 8km",
         phoneNumber = "+33 6 86 57 90 14",
         aboutMe = ("Fusce in ligula mi. Aliquam in sagittis tellus. Suspendisse tempor, velit et " +
@@ -75,7 +75,7 @@ internal val Dummy_Users: List<User> = listOf(
     User(
         id = 6,
         name = "Sylvain",
-        avatarUrl = "https://i.picsum.photos/id/375/5184/3456.jpg?hmac=3OUWWnSmq1CUXU7cmTnctSvhQYvyME_osftkbJynX04",
+        avatarUrl = "https://api.dicebear.com/9.x/miniavs/png",
         address = "Saint-Pierre-du-Mont ; 6km",
         phoneNumber = "+33 6 86 12 22 02",
         aboutMe = ("Integer pulvinar lacinia augue, a tempor ex semper eget. Nam lacinia " +
@@ -90,7 +90,7 @@ internal val Dummy_Users: List<User> = listOf(
     User(
         id = 7,
         name = "Laetitia",
-        avatarUrl = "https://i.picsum.photos/id/628/2509/1673.jpg?hmac=TUdtbj7l4rQx5WGHuFiV_9ArjkAkt6w2Zx8zz-aFwwY",
+        avatarUrl = "https://api.dicebear.com/9.x/miniavs/png",
         address = "Saint-Pierre-du-Mont ; 14km",
         phoneNumber = "+33 6 96 57 90 01",
         aboutMe = "Vestibulum non leo vel mi ultrices pellentesque. ",
@@ -100,7 +100,7 @@ internal val Dummy_Users: List<User> = listOf(
     User(
         id = 8,
         name = "Dan",
-        avatarUrl = "https://i.picsum.photos/id/453/2048/1365.jpg?hmac=A8uxtdn4Y600Z5b2ngnn9hCXAx8sUnOVzprtDnz6DK8",
+        avatarUrl = "https://api.dicebear.com/9.x/miniavs/png",
         address = "Saint-Pierre-du-Mont ; 1km",
         phoneNumber = "+33 6 86 57 90 14",
         aboutMe = "Cras non dapibus arcu. ",
@@ -110,7 +110,7 @@ internal val Dummy_Users: List<User> = listOf(
     User(
         id = 9,
         name = "Joseph",
-        avatarUrl = "https://i.picsum.photos/id/473/5616/3744.jpg?hmac=4tP7GutJ3LGRXeprD581uaNnJJGrhF57f08OOtMm1q0",
+        avatarUrl = "https://api.dicebear.com/9.x/miniavs/png",
         address = "Saint-Pierre-du-Mont ; 2km",
         phoneNumber = "+33 6 86 57 90 14",
         aboutMe = ("Donec neque odio, eleifend a luctus ac, tempor non libero. " +
@@ -123,7 +123,7 @@ internal val Dummy_Users: List<User> = listOf(
     User(
         id = 10,
         name = "Emma",
-        avatarUrl = "https://i.picsum.photos/id/64/4326/2884.jpg?hmac=9_SzX666YRpR_fOyYStXpfSiJ_edO3ghlSRnH2w09Kg",
+        avatarUrl = "https://api.dicebear.com/9.x/miniavs/png",
         address = "Saint-Pierre-du-Mont ; 1km",
         phoneNumber = "+33 6 14 71 70 18",
         aboutMe = ("Aliquam erat volutpat. Mauris at massa nibh. Suspendisse auctor fermentum orci, " +
@@ -141,7 +141,7 @@ internal val Dummy_Users: List<User> = listOf(
     User(
         id = 11,
         name = "Patrick",
-        avatarUrl = "https://i.picsum.photos/id/91/3504/2336.jpg?hmac=tK6z7RReLgUlCuf4flDKeg57o6CUAbgklgLsGL0UowU",
+        avatarUrl = "https://api.dicebear.com/9.x/miniavs/png",
         address = "Saint-Pierre-du-Mont ; 5km",
         phoneNumber = "+33 6 20 40 60 80",
         aboutMe = ("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce porttitor molestie " +
@@ -161,7 +161,7 @@ internal val Dummy_Users: List<User> = listOf(
     User(
         id = 12,
         name = "Ludovic",
-        avatarUrl = "https://i.picsum.photos/id/804/6000/3376.jpg?hmac=AZ4VZdij0jPu8BKZRbiE2lEMJGGjSFv43ii3RHRugco",
+        avatarUrl = "https://api.dicebear.com/9.x/miniavs/png",
         address = "Saint-Pierre-du-Mont ; 5km",
         phoneNumber = "+33 6 00 01 10 11",
         aboutMe = ("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce porttitor molestie " +
