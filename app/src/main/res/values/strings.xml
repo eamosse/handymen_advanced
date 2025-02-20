@@ -7,4 +7,15 @@
     <!--    favorite screen    -->
     <string name="no_favorites">No favorites</string>
     <string name="user_profile_picture">Profile picture</string>
+
+    <!--    add user screen    -->
+    <string name="name">Name</string>
+    <string name="address">Address</string>
+    <string name="phone">Phone Number</string>
+    <string name="about_me">About me</string>
+    <string name="website">Website</string>
+    <string name="add_user">Add User</string>
+    <string name="field_required">This field is required</string>
+    <string name="user_added_success">User successfully added</string>
+    <string name="user_added_error">Error while adding user</string>
 </resources>

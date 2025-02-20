@@ -6,15 +6,23 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.vama.android.handymen.databinding.FavoriteUsersFragmentBinding
+import com.vama.android.handymen.ui.home.HomeViewModel
 
 class FavoritesFragment: Fragment() {
 
     private var _binding: FavoriteUsersFragmentBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: FavoritesViewModel by viewModels()
+    private lateinit var viewModel: FavoritesViewModel
+
+
+    private val sharedViewModel: HomeViewModel by lazy {
+        ViewModelProvider(requireActivity())[HomeViewModel::class.java]
+    }
     private lateinit var adapter: FavoritesAdapter
 
     override fun onCreateView(
@@ -28,7 +36,9 @@ class FavoritesFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        viewModel = ViewModelProvider(this,
+            FavoritesViewModelFactory(sharedViewModel)
+        )[FavoritesViewModel::class.java]
         setupRecyclerView()
         observeFavorites()
     }
@@ -56,5 +66,14 @@ class FavoritesFragment: Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+    class FavoritesViewModelFactory(private val sharedViewModel: HomeViewModel) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(FavoritesViewModel::class.java)) {
+                return FavoritesViewModel(sharedViewModel = sharedViewModel) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
+        }
     }
 }

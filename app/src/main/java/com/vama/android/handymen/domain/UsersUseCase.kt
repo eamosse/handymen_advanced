@@ -10,23 +10,24 @@ import kotlinx.coroutines.withContext
 
 class UsersUseCase {
     private val repository = DataModule.repository()
-    suspend operator fun invoke(): LiveData<List<UserModelView>> {
-        val liveData = MutableLiveData<List<UserModelView>>()
-        doInBackGround(liveData)
-        return liveData
-    }
 
-    private suspend fun doInBackGround(liveData: MutableLiveData<List<UserModelView>>) =
-        withContext(Dispatchers.IO) {
-            val users = repository.getAll()
-            users.map { it.toModelView() }.also {
-                // be careful to use postValue instead of setValue in a background thread
-                liveData.postValue(it)
+    suspend operator fun invoke(): LiveData<List<UserModelView>> {
+        return withContext(Dispatchers.IO) {
+            MutableLiveData<List<UserModelView>>().apply {
+                val users = repository.getAll()
+                postValue(users.map { it.toModelView() })
             }
         }
+    }
 }
 
 private fun User.toModelView() = UserModelView(
     id = id,
-    name = name
+    name = name,
+    avatarUrl = avatarUrl,
+    address = address,
+    phoneNumber = phoneNumber,
+    aboutMe = aboutMe,
+    favorite = favorite,
+    webSite = webSite
 )

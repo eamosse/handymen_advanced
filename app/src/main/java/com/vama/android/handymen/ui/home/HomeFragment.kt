@@ -20,8 +20,8 @@ class HomeFragment : Fragment() {
     // The old fashion way to get the view model
     // We ask the view model provider to give us the view model
     // Lazy is used to initialize the view model only when it is needed
-    private val viewModel: HomeViewModel by lazy {
-        ViewModelProvider(this)[HomeViewModel::class.java]
+    val viewModel: HomeViewModel by lazy {
+        ViewModelProvider(requireActivity())[HomeViewModel::class.java]
     }
 
     // The new way to get the view model
@@ -51,8 +51,5 @@ class HomeFragment : Fragment() {
             // Mettre à jour l'adapter
             adapter.submitList(userList)
         }
-    }
-    override fun onDestroyView() {
-        super.onDestroyView()
     }
 }
