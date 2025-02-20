@@ -2,5 +2,9 @@
     <string name="app_name">HandyMen</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">New</string>
-    <string name="title_notifications">Favorites</string>
+    <string name="title_favorites">Favorites</string>
+
+    <!--    favorite screen    -->
+    <string name="no_favorites">No favorites</string>
+    <string name="user_profile_picture">Profile picture</string>
 </resources>

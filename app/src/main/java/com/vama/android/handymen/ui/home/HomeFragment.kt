@@ -12,14 +12,21 @@ import com.vama.android.handymen.databinding.HomeFragmentBinding
 class HomeFragment : Fragment() {
 
     // Généré grâce à home_fragment.xml (ou fragment_home.xml)
-    private lateinit var binding: HomeFragmentBinding
+    private lateinit var _binding: HomeFragmentBinding
 
     // Instancie l'adapter
     private val adapter: UsersAdapter by lazy { UsersAdapter() }
 
+    // The old fashion way to get the view model
+    // We ask the view model provider to give us the view model
+    // Lazy is used to initialize the view model only when it is needed
     private val viewModel: HomeViewModel by lazy {
         ViewModelProvider(this)[HomeViewModel::class.java]
     }
+
+    // The new way to get the view model
+    // TODO ("Make it work")
+    // private val _viewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,13 +34,13 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // Inflater le layout et initialiser binding
-        binding = HomeFragmentBinding.inflate(inflater, container, false)
+        _binding = HomeFragmentBinding.inflate(inflater, container, false)
 
         // Configurer le RecyclerView
-        binding.list.layoutManager = LinearLayoutManager(requireContext())
-        binding.list.adapter = adapter
+        _binding.list.layoutManager = LinearLayoutManager(requireContext())
+        _binding.list.adapter = adapter
 
-        return binding.root
+        return _binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -44,5 +51,8 @@ class HomeFragment : Fragment() {
             // Mettre à jour l'adapter
             adapter.submitList(userList)
         }
+    }
+    override fun onDestroyView() {
+        super.onDestroyView()
     }
 }

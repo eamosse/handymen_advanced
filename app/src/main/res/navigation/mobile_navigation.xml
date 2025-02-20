@@ -18,8 +18,8 @@
         tools:layout="@layout/add_user_fragment" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.vama.android.handymen.ui.favorites.UsersFragment"
-        android:label="@string/title_notifications"
+        android:id="@+id/navigation_favorites"
+        android:name="com.vama.android.handymen.ui.favorites.FavoritesFragment"
+        android:label="@string/title_favorites"
         tools:layout="@layout/favorite_users_fragment" />
 </navigation>
