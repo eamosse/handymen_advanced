@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.vama.android.data.model.User
+import com.vama.android.handymen.R
 import com.vama.android.handymen.databinding.UserItemBinding
 
 class FavoritesAdapter(
@@ -16,7 +17,7 @@ class FavoritesAdapter(
         val binding = UserItemBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
-        return FavoriteViewHolder(binding)
+        return FavoriteViewHolder(binding, onFavoriteClick)
     }
 
     override fun onBindViewHolder(holder: FavoriteViewHolder, position: Int) {
@@ -31,15 +32,27 @@ class FavoritesAdapter(
     }
 
     inner class FavoriteViewHolder(
-        private val binding: UserItemBinding
+        private val binding: UserItemBinding,
+        private val onFavoriteClick: (User) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(user: User) {
             binding.name.text = user.name
-            // Pour l'image de profil, on utiliserait idéalement une librairie comme Glide
-            // Mais pour simplifier, on garde l'image par défaut
+            binding.address.text = user.address
+            binding.phoneNumber.text = user.phoneNumber
+            binding.webSite.text = user.webSite
+            binding.aboutMe.text = user.aboutMe
 
-            itemView.setOnClickListener {
+            // Set favorite icon
+            val favoriteIcon = if (user.favorite) {
+                R.drawable.ic_favorite  // filled heart
+            } else {
+                R.drawable.ic_favorite_border // outlined heart
+            }
+            binding.favorite.setImageResource(favoriteIcon)
+
+            // Setup favorite icon click listener
+            binding.favorite.setOnClickListener {
                 onFavoriteClick(user)
             }
         }

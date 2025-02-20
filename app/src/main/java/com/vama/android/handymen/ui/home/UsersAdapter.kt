@@ -55,7 +55,7 @@ class UserViewHolder(private val binding: UserItemBinding) :
         binding.address.text = user.address
         binding.phoneNumber.text = user.phoneNumber
         binding.webSite.text = user.webSite
-        binding.aboutMe.text = user.name
+        binding.aboutMe.text = user.aboutMe
         val favoriteIcon = if (user.favorite) {
             R.drawable.ic_favorite  // icône « favori »
         } else {
