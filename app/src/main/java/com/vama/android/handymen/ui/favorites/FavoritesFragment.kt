@@ -46,6 +46,8 @@ class FavoritesFragment : Fragment() {
 
         setupRecyclerView()
         observeFavorites()
+
+
     }
 
     private fun setupRecyclerView() {
@@ -54,11 +56,11 @@ class FavoritesFragment : Fragment() {
                 // Toggle favorite
                 viewModel.toggleFavorite(user.id)
 
-                // Si tu veux aussi forcer la mise à jour côté HomeViewModel :
                 homeViewModel.loadUsers()
             },
             onDeleteClick = { user ->
                 showDeleteConfirmationDialog(user)
+                homeViewModel.loadUsers()
             },
             onShareClick = { user ->
                 shareUserProfile(user)
@@ -71,7 +73,20 @@ class FavoritesFragment : Fragment() {
         }
     }
 
+    private fun shareUserProfile(user: UserModelView) {
+        val shareText = homeViewModel.shareUserProfile(user)
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, "Profil de ${user.name}")
+            putExtra(Intent.EXTRA_TEXT, shareText)
+        }
+
+        startActivity(Intent.createChooser(shareIntent, "Partager le profil"))
+    }
+
     private fun observeFavorites() {
+        viewModel.refreshFavorites()
         viewModel.favorites.observe(viewLifecycleOwner) { favorites ->
             // Convert User to UserModelView if necessary
             val favoriteModelViews = favorites.map { user ->

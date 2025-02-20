@@ -135,6 +135,9 @@ class HomeFragment : Fragment() {
             .setPositiveButton(R.string.delete) { _, _ ->
                 // Call delete method in ViewModel
                 viewModel.deleteUser(user.id)
+
+                // Ajouter cette ligne pour mettre à jour les favoris
+                viewModel.loadUsers()
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
