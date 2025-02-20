@@ -58,6 +58,8 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupSearchView()
+        setupSortSpinner()
         // Observer la liste filtrée d'utilisateurs
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.filteredUsers.observe(viewLifecycleOwner) { userList ->
