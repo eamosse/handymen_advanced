@@ -3,7 +3,7 @@ package com.vama.android.data.utils
 import com.vama.android.data.model.User
 
 // Internal makes the constant visible only in the module
-private val Dummy_Users: List<User> = listOf(
+internal val Dummy_Users: List<User> = listOf(
     User(
         id = 1, name = "Caroline",
         avatarUrl = "https://i.picsum.photos/id/1011/5472/3648.jpg?hmac=Koo9845x2akkVzVFX3xxAc9BCkeGYA9VRVfLE4f0Zzk",
