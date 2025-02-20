@@ -13,6 +13,8 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel : ViewModel() {
     private val usersUseCase = UsersUseCase()
+    private val userRepository = DataModule.repository()
+
     private val _users = MutableLiveData<List<UserModelView>>()
     val users: LiveData<List<UserModelView>> = _users
 
@@ -25,6 +27,18 @@ class HomeViewModel : ViewModel() {
             usersUseCase().value?.let { newUsers ->
                 _users.postValue(newUsers)
             }
+        }
+    }
+    fun toggleFavorite(userId: Long) {
+        viewModelScope.launch {
+            userRepository.toggleFavorite(userId)
+            loadUsers() // Reload to reflect changes
+        }
+    }
+    fun deleteUser(userId: Long) {
+        viewModelScope.launch {
+            userRepository.delete(userId)
+            loadUsers() // Reload to reflect changes
         }
     }
 }

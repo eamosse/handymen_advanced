@@ -9,13 +9,16 @@ import com.vama.android.handymen.R
 import com.vama.android.handymen.databinding.UserItemBinding
 import com.vama.android.handymen.model.UserModelView
 
-class UsersAdapter : RecyclerView.Adapter<UserViewHolder>() {
+class UsersAdapter(
+    private val onFavoriteClick: (UserModelView) -> Unit,
+    private val onDeleteClick: (UserModelView) -> Unit
+) : RecyclerView.Adapter<UserViewHolder>() {
     private val mDiffer: AsyncListDiffer<UserModelView> = AsyncListDiffer(this, DiffCallback)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
         val inflater: LayoutInflater = LayoutInflater.from(parent.context)
         val binding: UserItemBinding = UserItemBinding.inflate(inflater, parent, false)
-        return UserViewHolder(binding)
+        return UserViewHolder(binding, onFavoriteClick, onDeleteClick)
     }
 
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
@@ -44,22 +47,41 @@ class UsersAdapter : RecyclerView.Adapter<UserViewHolder>() {
         ): Boolean {
             return oldItem == newItem
         }
-
     }
 }
 
-class UserViewHolder(private val binding: UserItemBinding) :
-    RecyclerView.ViewHolder(binding.root) {
+class UserViewHolder(
+    private val binding: UserItemBinding,
+    private val onFavoriteClick: (UserModelView) -> Unit,
+    private val onDeleteClick: (UserModelView) -> Unit
+) : RecyclerView.ViewHolder(binding.root) {
+    private var currentUser: UserModelView? = null
+
+    init {
+        // Setup favorite icon click listener
+        binding.favorite.setOnClickListener {
+            currentUser?.let { user -> onFavoriteClick(user) }
+        }
+
+        // Setup delete icon click listener
+        binding.delete.setOnClickListener {
+            currentUser?.let { user -> onDeleteClick(user) }
+        }
+    }
+
     fun bind(user: UserModelView) {
+        currentUser = user
         binding.name.text = user.name
         binding.address.text = user.address
         binding.phoneNumber.text = user.phoneNumber
         binding.webSite.text = user.webSite
         binding.aboutMe.text = user.aboutMe
+
+        // Set favorite icon
         val favoriteIcon = if (user.favorite) {
-            R.drawable.ic_favorite  // icône « favori »
+            R.drawable.ic_favorite  // filled heart
         } else {
-            R.drawable.ic_favorite_border // icône « non favori »
+            R.drawable.ic_favorite_border // outlined heart
         }
         binding.favorite.setImageResource(favoriteIcon)
     }

@@ -1,5 +1,6 @@
 package com.vama.android.handymen.ui.home
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,36 +8,40 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.vama.android.handymen.R
 import com.vama.android.handymen.databinding.HomeFragmentBinding
+import com.vama.android.handymen.model.UserModelView
 
 class HomeFragment : Fragment() {
 
-    // Généré grâce à home_fragment.xml (ou fragment_home.xml)
     private lateinit var _binding: HomeFragmentBinding
 
-    // Instancie l'adapter
-    private val adapter: UsersAdapter by lazy { UsersAdapter() }
+    private lateinit var adapter: UsersAdapter
 
-    // The old fashion way to get the view model
-    // We ask the view model provider to give us the view model
-    // Lazy is used to initialize the view model only when it is needed
     val viewModel: HomeViewModel by lazy {
         ViewModelProvider(requireActivity())[HomeViewModel::class.java]
     }
-
-    // The new way to get the view model
-    // TODO ("Make it work")
-    // private val _viewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflater le layout et initialiser binding
         _binding = HomeFragmentBinding.inflate(inflater, container, false)
 
-        // Configurer le RecyclerView
+        // Initialize adapter with favorite and delete click handlers
+        adapter = UsersAdapter(
+            onFavoriteClick = { user ->
+                // Toggle favorite status
+                // Assuming you have a method in HomeViewModel to toggle favorite
+                viewModel.toggleFavorite(user.id)
+            },
+            onDeleteClick = { user ->
+                // Show confirmation dialog before deleting
+                showDeleteConfirmationDialog(user)
+            }
+        )
+
         _binding.list.layoutManager = LinearLayoutManager(requireContext())
         _binding.list.adapter = adapter
 
@@ -51,5 +56,17 @@ class HomeFragment : Fragment() {
             // Mettre à jour l'adapter
             adapter.submitList(userList)
         }
+    }
+
+    private fun showDeleteConfirmationDialog(user: UserModelView) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.delete_user_title)
+            .setMessage(R.string.delete_user_message)
+            .setPositiveButton(R.string.delete) { _, _ ->
+                // Call delete method in ViewModel
+                viewModel.deleteUser(user.id)
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 }

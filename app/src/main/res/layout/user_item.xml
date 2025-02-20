@@ -68,13 +68,20 @@
         android:text="@string/default_about_me"
         android:textSize="14sp" />
 
-    <!-- Icône “favori” -->
+    <!-- Icône "supprimer" -->
+    <ImageView
+        android:id="@+id/delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:contentDescription="@string/delete_user"
+        android:src="@drawable/ic_delete" />
+
+    <!-- Icône "favori" -->
     <ImageView
         android:id="@+id/favorite"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_gravity="end"
         android:contentDescription="@string/favorite_icon"
         android:src="@drawable/ic_favorite_border" />
 </LinearLayout>
