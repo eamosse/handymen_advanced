@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -15,17 +16,19 @@ import com.vama.android.handymen.databinding.FavoriteUsersFragmentBinding
 import com.vama.android.handymen.model.UserModelView
 import com.vama.android.handymen.ui.home.HomeViewModel
 import com.vama.android.handymen.ui.home.UsersAdapter
+import dagger.hilt.android.AndroidEntryPoint
 
-class FavoritesFragment: Fragment() {
+@AndroidEntryPoint
+class FavoritesFragment : Fragment() {
 
     private var _binding: FavoriteUsersFragmentBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var viewModel: FavoritesViewModel
+    // Récupération du FavoritesViewModel via Hilt
+    private val viewModel: FavoritesViewModel by viewModels()
 
-    private val sharedViewModel: HomeViewModel by lazy {
-        ViewModelProvider(requireActivity())[HomeViewModel::class.java]
-    }
+    private val homeViewModel: HomeViewModel by activityViewModels()
+
     private lateinit var adapter: UsersAdapter
 
     override fun onCreateView(
@@ -39,9 +42,6 @@ class FavoritesFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel = ViewModelProvider(this,
-            FavoritesViewModelFactory(sharedViewModel)
-        )[FavoritesViewModel::class.java]
 
         setupRecyclerView()
         observeFavorites()
@@ -52,9 +52,11 @@ class FavoritesFragment: Fragment() {
             onFavoriteClick = { user ->
                 // Toggle favorite
                 viewModel.toggleFavorite(user.id)
+
+                // Si tu veux aussi forcer la mise à jour côté HomeViewModel :
+                homeViewModel.loadUsers()
             },
             onDeleteClick = { user ->
-                // Show confirmation dialog before deleting
                 showDeleteConfirmationDialog(user)
             }
         )
@@ -67,7 +69,6 @@ class FavoritesFragment: Fragment() {
 
     private fun observeFavorites() {
         viewModel.favorites.observe(viewLifecycleOwner) { favorites ->
-            // Convert User to UserModelView if necessary
             val favoriteModelViews = favorites.map { user ->
                 com.vama.android.handymen.model.UserModelView(
                     id = user.id,
@@ -76,11 +77,10 @@ class FavoritesFragment: Fragment() {
                     phoneNumber = user.phoneNumber,
                     webSite = user.webSite,
                     aboutMe = user.aboutMe,
-                    favorite = false,
+                    favorite = true, // ou selon ta logique
                     avatarUrl = ""
                 )
             }
-
             adapter.submitList(favoriteModelViews)
 
             binding.emptyView.visibility = if (favorites.isEmpty()) View.VISIBLE else View.GONE
@@ -92,24 +92,16 @@ class FavoritesFragment: Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
     private fun showDeleteConfirmationDialog(user: UserModelView) {
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.delete_user_title)
             .setMessage(R.string.delete_user_message)
             .setPositiveButton(R.string.delete) { _, _ ->
-                // Call delete method in ViewModel
                 viewModel.deleteUser(user.id)
+                homeViewModel.loadUsers() // si besoin
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
-    }
-    class FavoritesViewModelFactory(private val sharedViewModel: HomeViewModel) : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(FavoritesViewModel::class.java)) {
-                return FavoritesViewModel(sharedViewModel = sharedViewModel) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
     }
 }

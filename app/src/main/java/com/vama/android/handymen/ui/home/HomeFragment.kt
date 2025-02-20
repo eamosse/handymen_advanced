@@ -11,7 +11,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.vama.android.handymen.R
 import com.vama.android.handymen.databinding.HomeFragmentBinding
 import com.vama.android.handymen.model.UserModelView
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
 
     private lateinit var _binding: HomeFragmentBinding

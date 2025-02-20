@@ -4,6 +4,7 @@ import com.vama.android.data.api.SortCriteria
 import com.vama.android.data.api.UserService
 import com.vama.android.data.di.DataModule
 import com.vama.android.data.model.User
+import javax.inject.Inject
 
 interface UserRepository {
     fun getAll(): List<User>
@@ -17,7 +18,7 @@ interface UserRepository {
     fun sortBy(criteria: SortCriteria): List<User>
 }
 
-internal class UserRepositoryImpl private constructor() : UserRepository {
+class UserRepositoryImpl @Inject public constructor() : UserRepository {
     private val service: UserService = DataModule.provideUserService()
 
     override fun getAll(): List<User> = service.getAll()
