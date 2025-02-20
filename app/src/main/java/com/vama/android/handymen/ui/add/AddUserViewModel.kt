@@ -7,9 +7,13 @@ import com.vama.android.data.di.DataModule
 import com.vama.android.data.model.User
 import com.vama.android.data.repositories.UserRepository
 import com.vama.android.handymen.utils.Event
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class AddUserViewModel : ViewModel() {
-    private val userRepository: UserRepository = DataModule.repository()
+@HiltViewModel
+class AddUserViewModel @Inject constructor(
+    private val userRepository: UserRepository
+) : ViewModel() {
 
     private val _addSuccess = MutableLiveData<Event<Boolean>>()
     val addSuccess: LiveData<Event<Boolean>> = _addSuccess

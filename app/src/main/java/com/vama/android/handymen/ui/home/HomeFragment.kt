@@ -14,10 +14,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.vama.android.handymen.R
 import com.vama.android.handymen.databinding.HomeFragmentBinding
 import com.vama.android.handymen.model.UserModelView
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import androidx.appcompat.widget.SearchView // Ensure this is the correct import
+import androidx.appcompat.widget.SearchView
 
-
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
 
     private lateinit var _binding: HomeFragmentBinding
@@ -35,7 +36,7 @@ class HomeFragment : Fragment() {
     ): View {
         _binding = HomeFragmentBinding.inflate(inflater, container, false)
 
-        // Initialize adapter with favorite, delete, and share click handlers
+        // Initialize adapter with favorite and delete click handlers
         adapter = UsersAdapter(
             onFavoriteClick = { user ->
                 viewModel.toggleFavorite(user.id)
@@ -51,12 +52,6 @@ class HomeFragment : Fragment() {
         _binding.list.layoutManager = LinearLayoutManager(requireContext())
         _binding.list.adapter = adapter
 
-        // Configuration de la recherche
-        setupSearchView()
-
-        // Configuration du tri
-        setupSortSpinner()
-
         return _binding.root
     }
 
@@ -68,7 +63,12 @@ class HomeFragment : Fragment() {
             viewModel.filteredUsers.observe(viewLifecycleOwner) { userList ->
                 adapter.submitList(userList)
             }
+
         }
+//        viewModel.users.observe(viewLifecycleOwner) { userList ->
+//                // Mettre à jour l'adapter
+//                adapter.submitList(userList)
+//            }
     }
 
     private fun setupSearchView() {
@@ -133,6 +133,7 @@ class HomeFragment : Fragment() {
             .setTitle(R.string.delete_user_title)
             .setMessage(R.string.delete_user_message)
             .setPositiveButton(R.string.delete) { _, _ ->
+                // Call delete method in ViewModel
                 viewModel.deleteUser(user.id)
             }
             .setNegativeButton(R.string.cancel, null)

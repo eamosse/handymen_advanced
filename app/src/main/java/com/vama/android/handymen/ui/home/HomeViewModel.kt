@@ -13,19 +13,22 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import com.vama.android.data.repositories.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-
-class HomeViewModel : ViewModel() {
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    private val usersUseCase: UsersUseCase,
+    private val userRepository: UserRepository
+) : ViewModel() {
     enum class SortType {
         NAME_ASC,
         NAME_DESC,
         DATE_CREATED_ASC,
         DATE_CREATED_DESC
     }
-    private val usersUseCase = UsersUseCase()
-    private val userRepository = DataModule.repository()
-
     private val _users = MutableLiveData<List<UserModelView>>()
     val users: LiveData<List<UserModelView>> = _users
 
@@ -89,14 +92,12 @@ class HomeViewModel : ViewModel() {
             }
         }
     }
-
     fun toggleFavorite(userId: Long) {
         viewModelScope.launch {
             userRepository.toggleFavorite(userId)
             loadUsers() // Reload to reflect changes
         }
     }
-
     fun deleteUser(userId: Long) {
         viewModelScope.launch {
             userRepository.delete(userId)

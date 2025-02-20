@@ -6,19 +6,24 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.vama.android.handymen.R
 import com.vama.android.handymen.databinding.AddUserFragmentBinding
 import com.vama.android.handymen.ui.favorites.FavoritesFragment
 import com.vama.android.handymen.ui.home.HomeFragment
 import com.vama.android.handymen.ui.home.HomeViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class AddUserFragment : Fragment() {
 
     private lateinit var _binding: AddUserFragmentBinding
-    private val viewModel: AddUserViewModel by lazy {
-        ViewModelProvider(this)[AddUserViewModel::class.java]
-    }
+
+    // Le ViewModel AddUser injecté par Hilt
+    private val viewModel: AddUserViewModel by viewModels()
+
+    // Le ViewModel partagé (HomeViewModel), si besoin
     private val sharedViewModel: HomeViewModel by lazy {
         ViewModelProvider(requireActivity())[HomeViewModel::class.java]
     }
@@ -78,7 +83,7 @@ class AddUserFragment : Fragment() {
                     clearInputs()
                     Toast.makeText(context, R.string.user_added_success, Toast.LENGTH_SHORT).show()
 
-                    // Rafraîchir directement via le ViewModel partagé
+                    // Appel explicit au HomeViewModel si tu veux rafraîchir la liste
                     sharedViewModel.loadUsers()
                 } else {
                     Toast.makeText(context, R.string.user_added_error, Toast.LENGTH_SHORT).show()
@@ -94,6 +99,4 @@ class AddUserFragment : Fragment() {
         _binding.aboutMeInput.text?.clear()
         _binding.websiteInput.text?.clear()
     }
-
-
 }
