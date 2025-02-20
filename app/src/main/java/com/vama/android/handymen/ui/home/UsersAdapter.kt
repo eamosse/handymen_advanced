@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.vama.android.handymen.R
 import com.vama.android.handymen.databinding.UserItemBinding
 import com.vama.android.handymen.model.UserModelView
 
@@ -51,5 +52,15 @@ class UserViewHolder(private val binding: UserItemBinding) :
     RecyclerView.ViewHolder(binding.root) {
     fun bind(user: UserModelView) {
         binding.name.text = user.name
+        binding.address.text = user.address
+        binding.phoneNumber.text = user.phoneNumber
+        binding.webSite.text = user.webSite
+        binding.aboutMe.text = user.name
+        val favoriteIcon = if (user.favorite) {
+            R.drawable.ic_favorite  // icône « favori »
+        } else {
+            R.drawable.ic_favorite_border // icône « non favori »
+        }
+        binding.favorite.setImageResource(favoriteIcon)
     }
 }

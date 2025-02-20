@@ -7,4 +7,10 @@
     <!--    favorite screen    -->
     <string name="no_favorites">No favorites</string>
     <string name="user_profile_picture">Profile picture</string>
+    <string name="default_user_name">Username</string>
+    <string name="default_address">Address\n</string>
+    <string name="default_phone">Phone\n</string>
+    <string name="default_website">Website</string>
+    <string name="default_about_me">About me</string>
+    <string name="favorite_icon">Add to favorite</string>
 </resources>

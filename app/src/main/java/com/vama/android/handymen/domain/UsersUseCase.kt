@@ -28,5 +28,11 @@ class UsersUseCase {
 
 private fun User.toModelView() = UserModelView(
     id = id,
-    name = name
+    name = name,
+    avatarUrl = avatarUrl,
+    address = address,
+    phoneNumber = phoneNumber,
+    aboutMe = aboutMe,
+    favorite = favorite,
+    webSite = webSite
 )
