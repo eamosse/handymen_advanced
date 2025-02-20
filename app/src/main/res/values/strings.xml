@@ -8,6 +8,14 @@
     <string name="no_favorites">No favorites</string>
     <string name="user_profile_picture">Profile picture</string>
 
+    <!--    default user data    -->
+    <string name="default_user_name">Username</string>
+    <string name="default_address">Address\n</string>
+    <string name="default_phone">Phone\n</string>
+    <string name="default_website">Website</string>
+    <string name="default_about_me">About me</string>
+    <string name="favorite_icon">Add to favorite</string>
+
     <!--    add user screen    -->
     <string name="name">Name</string>
     <string name="address">Address</string>
@@ -18,4 +26,5 @@
     <string name="field_required">This field is required</string>
     <string name="user_added_success">User successfully added</string>
     <string name="user_added_error">Error while adding user</string>
+
 </resources>

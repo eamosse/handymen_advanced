@@ -4,24 +4,77 @@
     android:id="@+id/userProfileRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:padding="8dp">
 
+    <!-- Image de profil -->
     <ImageView
         android:id="@+id/imageProfile"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:src="@drawable/ic_profile_placeholder"
+        android:layout_width="96dp"
+        android:layout_height="96dp"
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="@string/user_profile_picture"
         android:scaleType="centerCrop"
-        android:layout_marginEnd="8dp"
-        android:contentDescription="@string/user_profile_picture" />
+        android:src="@drawable/ic_profile_placeholder" />
 
-    <!-- TextView pour le prénom et nom -->
+    <!-- Nom -->
     <TextView
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Prénom Nom"
-        android:textSize="16sp"
-        android:textColor="@android:color/black" />
+        android:layout_marginTop="8dp"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/default_user_name"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/default_address"
+        android:textSize="14sp" />
+
+    <!-- Numéro de téléphone -->
+    <TextView
+        android:id="@+id/phoneNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_gravity="center_horizontal"
+        android:autoLink="phone"
+        android:text="@string/default_phone"
+        android:textSize="14sp" />
+
+    <!-- Site web -->
+    <TextView
+        android:id="@+id/webSite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:layout_gravity="center_horizontal"
+        android:autoLink="web"
+        android:text="@string/default_website"
+        android:textSize="14sp" />
+
+    <!-- À propos de moi -->
+    <TextView
+        android:id="@+id/aboutMe"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/default_about_me"
+        android:textSize="14sp" />
+
+    <!-- Icône “favori” -->
+    <ImageView
+        android:id="@+id/favorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_gravity="end"
+        android:contentDescription="@string/favorite_icon"
+        android:src="@drawable/ic_favorite_border" />
 </LinearLayout>
