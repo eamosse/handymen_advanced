@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.eamosse.android.handymen"
+    namespace = "com.vama.android.handymen"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.eamosse.android.handymen"
+        applicationId = "com.vama.android.handymen"
         minSdk = 30
         targetSdk = 34
         versionCode = 1
@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation(project(":data"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

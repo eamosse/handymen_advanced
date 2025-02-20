@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.eamosse.android.data"
+    namespace = "com.vama.android.data"
     compileSdk = 34
 
     defaultConfig {

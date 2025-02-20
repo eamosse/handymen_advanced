@@ -7,19 +7,19 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.eamosse.android.handymen.ui.home.HomeFragment"
+        android:name="com.vama.android.handymen.ui.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/home_fragment" />
 
     <fragment
         android:id="@+id/navigation_dashboard"
-        android:name="com.eamosse.android.handymen.ui.add.AddUserFragment"
+        android:name="com.vama.android.handymen.ui.add.AddUserFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/add_user_fragment" />
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="com.eamosse.android.handymen.ui.favorites.UsersFragment"
+        android:name="com.vama.android.handymen.ui.favorites.UsersFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/favorite_users_fragment" />
 </navigation>
