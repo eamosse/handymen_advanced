@@ -11,17 +11,11 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.vama.android.handymen.databinding.MainActivityBinding
+import com.vama.android.handymen.ui.preferences.PreferencesFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-
-    // Clé de préférence pour le mode
-    private val PREF_MODE_KEY = "isDatabaseMode"
-    private lateinit var prefs: SharedPreferences
-
-    // Mode courant : true = Database, false = Memory
-    private var isDatabaseMode: Boolean = false
 
     private lateinit var binding: MainActivityBinding
 
@@ -31,14 +25,10 @@ class MainActivity : AppCompatActivity() {
         binding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        prefs = getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
-        isDatabaseMode = prefs.getBoolean(PREF_MODE_KEY, false)
-
-        if (isDatabaseMode) {
-            activateDatabaseMode()
-        } else {
-            activateMemoryMode()
-        }
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.container, PreferencesFragment())
+            .addToBackStack(null)
+            .commit()
 
         val navView: BottomNavigationView = binding.navView
 
@@ -56,13 +46,5 @@ class MainActivity : AppCompatActivity() {
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-    }
-
-    private fun activateDatabaseMode() {
-
-    }
-
-    private fun activateMemoryMode() {
-
     }
 }
