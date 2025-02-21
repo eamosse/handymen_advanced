@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">HandyMen</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">New</string>
+    <string name="title_favorites">Favorites</string>
+
+    <!--    favorite screen    -->
+    <string name="no_favorites">No favorites</string>
+    <string name="user_profile_picture">Profile picture</string>
+
+    <!--    default user data    -->
+    <string name="default_user_name">Username</string>
+    <string name="default_address">Address\n</string>
+    <string name="default_phone">Phone\n</string>
+    <string name="default_website">Website</string>
+    <string name="default_about_me">About me</string>
+    <string name="favorite_icon">Add to favorite</string>
+
+    <!--    add user screen    -->
+    <string name="name">Name</string>
+    <string name="address">Address</string>
+    <string name="phone">Phone Number</string>
+    <string name="about_me">About me</string>
+    <string name="website">Website</string>
+    <string name="add_user">Add User</string>
+    <string name="field_required">This field is required</string>
+    <string name="user_added_success">User successfully added</string>
+    <string name="user_added_error">Error while adding user</string>
+    <string name="share_icon">Share profile</string>
+
+    <!--    User deletion alert   -->
+    <string name="delete_user_title">Delete User</string>
+    <string name="delete_user_message">Are you sure you want to delete this user?</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete_user">Delete user</string>
+
+
+</resources>
