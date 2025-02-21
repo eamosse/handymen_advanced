@@ -14,6 +14,14 @@ import kotlinx.coroutines.launch
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
 
+    suspend fun populateWithTestData() {
+        userDao().let { dao ->
+            Dummy_Users.forEach { user ->
+                dao.insert(UserEntity.fromUser(user))
+            }
+        }
+    }
+
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null
@@ -30,8 +38,7 @@ abstract class AppDatabase : RoomDatabase() {
                             super.onCreate(db)
                             INSTANCE?.let { database ->
                                 CoroutineScope(Dispatchers.IO).launch {
-                                    // Populate initial data
-                                    populateDatabase(database.userDao())
+                                    database.populateWithTestData()
                                 }
                             }
                         }
@@ -39,12 +46,6 @@ abstract class AppDatabase : RoomDatabase() {
                     .build()
                 INSTANCE = instance
                 instance
-            }
-        }
-
-        private fun populateDatabase(userDao: UserDao) {
-            Dummy_Users.forEach { user ->
-                userDao.insert(UserEntity.fromUser(user))
             }
         }
     }
