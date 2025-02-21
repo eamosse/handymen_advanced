@@ -34,6 +34,7 @@
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
     <string name="delete_user">Delete user</string>
+    <string name="title_preferences">Preferences</string>
 
 
 </resources>
