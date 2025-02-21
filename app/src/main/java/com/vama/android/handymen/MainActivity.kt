@@ -25,11 +25,6 @@ class MainActivity : AppCompatActivity() {
         binding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.container, PreferencesFragment())
-            .addToBackStack(null)
-            .commit()
-
         val navView: BottomNavigationView = binding.navView
 
         // Get NavController from NavHostFragment

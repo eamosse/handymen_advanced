@@ -22,4 +22,10 @@
         android:name="com.vama.android.handymen.ui.favorites.FavoritesFragment"
         android:label="@string/title_favorites"
         tools:layout="@layout/favorite_users_fragment" />
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.vama.android.handymen.ui.preferences.PreferencesFragment"
+        android:label="@string/title_preferences"
+        tools:layout="@layout/fragment_preferences" />
 </navigation>
