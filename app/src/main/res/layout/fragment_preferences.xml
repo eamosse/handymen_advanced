@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Toolbar personnalisée pour le fragment de préférences -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/preferences_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:title="Préférences"
+        android:background="?attr/colorPrimary"
+        app:titleTextColor="@android:color/white" />
+
+    <!-- Conteneur pour les préférences -->
+    <FrameLayout
+        android:id="@+id/preferences_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

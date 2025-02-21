@@ -1,5 +1,7 @@
 package com.vama.android.handymen
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +16,13 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
+    // Clé de préférence pour le mode
+    private val PREF_MODE_KEY = "isDatabaseMode"
+    private lateinit var prefs: SharedPreferences
+
+    // Mode courant : true = Database, false = Memory
+    private var isDatabaseMode: Boolean = false
+
     private lateinit var binding: MainActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,6 +30,15 @@ class MainActivity : AppCompatActivity() {
 
         binding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        prefs = getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+        isDatabaseMode = prefs.getBoolean(PREF_MODE_KEY, false)
+
+        if (isDatabaseMode) {
+            activateDatabaseMode()
+        } else {
+            activateMemoryMode()
+        }
 
         val navView: BottomNavigationView = binding.navView
 
@@ -38,5 +56,13 @@ class MainActivity : AppCompatActivity() {
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+    }
+
+    private fun activateDatabaseMode() {
+
+    }
+
+    private fun activateMemoryMode() {
+
     }
 }
