@@ -3,9 +3,11 @@ package com.vama.android.handymen.ui.favorites
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.vama.android.data.model.User
 import com.vama.android.data.repositories.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,17 +23,23 @@ class FavoritesViewModel @Inject constructor(
     }
 
     fun loadFavorites() {
-        _favorites.value = userRepository.getFavorites()
+        viewModelScope.launch {
+            _favorites.value = userRepository.getFavorites()
+        }
     }
 
     fun toggleFavorite(userId: Long) {
-        userRepository.toggleFavorite(userId)
-        loadFavorites()
+        viewModelScope.launch {
+            userRepository.toggleFavorite(userId)
+            loadFavorites()
+        }
     }
 
     fun deleteUser(userId: Long) {
-        userRepository.delete(userId)
-        loadFavorites()
+        viewModelScope.launch {
+            userRepository.delete(userId)
+            loadFavorites()
+        }
     }
 
     fun refreshFavorites() {

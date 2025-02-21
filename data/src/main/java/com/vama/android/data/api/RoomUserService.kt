@@ -3,44 +3,53 @@ package com.vama.android.data.api
 import com.vama.android.data.database.AppDatabase
 import com.vama.android.data.database.UserEntity
 import com.vama.android.data.model.User
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class RoomUserService(private val database: AppDatabase) : UserService {
+class RoomUserService @Inject constructor(
+    private val database: AppDatabase
+) : UserService {
     private val userDao = database.userDao()
 
-    override fun getAll(): List<User> =
+    override suspend fun getAll(): List<User> = withContext(Dispatchers.IO) {
         userDao.getAll().map { it.toUser() }
+    }
 
-    override fun getById(id: Long): User? =
+    override suspend fun getById(id: Long): User? = withContext(Dispatchers.IO) {
         userDao.getById(id)?.toUser()
+    }
 
-    override fun add(user: User): User {
+    override suspend fun add(user: User): User = withContext(Dispatchers.IO) {
         val entity = UserEntity.fromUser(user)
         val newId = userDao.insert(entity)
-        return user.copy(id = newId)
+        user.copy(id = newId)
     }
 
-    override fun update(user: User): User {
+    override suspend fun update(user: User): User = withContext(Dispatchers.IO) {
         val entity = UserEntity.fromUser(user)
         userDao.update(entity)
-        return user
+        user
     }
 
-    override fun delete(id: Long) {
+    override suspend fun delete(id: Long) = withContext(Dispatchers.IO) {
         userDao.delete(id)
     }
 
-    override fun search(query: String): List<User> =
+    override suspend fun search(query: String): List<User> = withContext(Dispatchers.IO) {
         userDao.search(query).map { it.toUser() }
+    }
 
-    override fun toggleFavorite(id: Long) {
+    override suspend fun toggleFavorite(id: Long) = withContext(Dispatchers.IO) {
         userDao.toggleFavorite(id)
     }
 
-    override fun getFavorites(): List<User> =
+    override suspend fun getFavorites(): List<User> = withContext(Dispatchers.IO) {
         userDao.getFavorites().map { it.toUser() }
+    }
 
-    override fun sortBy(criteria: SortCriteria): List<User> {
-        return when (criteria) {
+    override suspend fun sortBy(criteria: SortCriteria): List<User> = withContext(Dispatchers.IO) {
+        when (criteria) {
             SortCriteria.NAME_ASC -> getAll().sortedBy { it.name }
             SortCriteria.NAME_DESC -> getAll().sortedByDescending { it.name }
             SortCriteria.FAVORITE -> getAll().sortedByDescending { it.favorite }

@@ -28,32 +28,65 @@ class HomeViewModel @Inject constructor(
         DATE_CREATED_ASC,
         DATE_CREATED_DESC
     }
+
     private val _users = MutableLiveData<List<UserModelView>>()
     val users: LiveData<List<UserModelView>> = _users
 
-    // Change MutableStateFlow to MutableLiveData
     private val _searchQuery = MutableLiveData("")
     val searchQuery: LiveData<String> = _searchQuery
 
-    // Change MutableStateFlow to MutableLiveData
     private val _sortType = MutableLiveData(SortType.NAME_ASC)
     val sortType: LiveData<SortType> = _sortType
 
-    private val _filteredUsers = MediatorLiveData<List<UserModelView>>().apply {
-        addSource(_users) { performFilterAndSort() }
-        addSource(_searchQuery) { performFilterAndSort() }
-        addSource(_sortType) { performFilterAndSort() }
-    }
+    private val _filteredUsers = MediatorLiveData<List<UserModelView>>()
     val filteredUsers: LiveData<List<UserModelView>> = _filteredUsers
 
-    // Rest of the code remains the same...
+    init {
+        loadUsers()
+        setupFilteredUsers()
+    }
+
+    private fun setupFilteredUsers() {
+        _filteredUsers.addSource(_users) { performFilterAndSort() }
+        _filteredUsers.addSource(_searchQuery) { performFilterAndSort() }
+        _filteredUsers.addSource(_sortType) { performFilterAndSort() }
+    }
+
+    fun loadUsers() {
+        viewModelScope.launch {
+            usersUseCase().value?.let { newUsers ->
+                _users.value = newUsers
+            }
+        }
+    }
+
+    fun toggleFavorite(userId: Long) {
+        viewModelScope.launch {
+            userRepository.toggleFavorite(userId)
+            loadUsers()
+        }
+    }
+
+    fun deleteUser(userId: Long) {
+        viewModelScope.launch {
+            userRepository.delete(userId)
+            loadUsers()
+        }
+    }
+
+    fun updateSearchQuery(query: String) {
+        _searchQuery.value = query
+    }
+
+    fun updateSortType(sortType: SortType) {
+        _sortType.value = sortType
+    }
 
     private fun performFilterAndSort() {
         val currentUsers = _users.value ?: return
         val currentQuery = _searchQuery.value ?: ""
         val currentSortType = _sortType.value ?: SortType.NAME_ASC
 
-        // Filtrer
         val filteredList = currentUsers.filter { user ->
             currentQuery.isEmpty() ||
                     user.name.contains(currentQuery, ignoreCase = true) ||
@@ -61,7 +94,6 @@ class HomeViewModel @Inject constructor(
                     user.address.contains(currentQuery, ignoreCase = true)
         }
 
-        // Trier
         val sortedList = when (currentSortType) {
             SortType.NAME_ASC -> filteredList.sortedBy { it.name }
             SortType.NAME_DESC -> filteredList.sortedByDescending { it.name }
@@ -72,39 +104,6 @@ class HomeViewModel @Inject constructor(
         _filteredUsers.value = sortedList
     }
 
-    // Update methods to use LiveData
-    fun updateSearchQuery(query: String) {
-        _searchQuery.value = query
-    }
-
-    fun updateSortType(sortType: SortType) {
-        _sortType.value = sortType
-    }
-    init {
-        loadUsers()
-    }
-
-    fun loadUsers() {
-        viewModelScope.launch {
-            usersUseCase().value?.let { newUsers ->
-                _users.value = newUsers
-            }
-        }
-    }
-    fun toggleFavorite(userId: Long) {
-        viewModelScope.launch {
-            userRepository.toggleFavorite(userId)
-            loadUsers() // Reload to reflect changes
-        }
-    }
-    fun deleteUser(userId: Long) {
-        viewModelScope.launch {
-            userRepository.delete(userId)
-            loadUsers() // Reload to reflect changes
-        }
-    }
-
-    // Méthode de partage de profil
     fun shareUserProfile(user: UserModelView): String {
         return """
             Profil Utilisateur:

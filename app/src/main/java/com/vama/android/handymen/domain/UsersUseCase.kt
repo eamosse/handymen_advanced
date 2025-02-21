@@ -12,12 +12,6 @@ import javax.inject.Inject
 class UsersUseCase @Inject constructor(
     private val repository: UserRepository
 ) {
-    /**
-     * Retourne une LiveData<List<UserModelView>>
-     * en faisant un appel au repository.
-     *
-     * @return LiveData contenant la liste des UserModelView
-     */
     suspend operator fun invoke(): LiveData<List<UserModelView>> {
         return withContext(Dispatchers.IO) {
             MutableLiveData<List<UserModelView>>().apply {
@@ -28,7 +22,7 @@ class UsersUseCase @Inject constructor(
     }
 }
 
-private fun User.toModelView() = UserModelView(
+private fun com.vama.android.data.model.User.toModelView() = UserModelView(
     id = id,
     name = name,
     avatarUrl = avatarUrl,
