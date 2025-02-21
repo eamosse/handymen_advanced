@@ -1,16 +1,28 @@
 package com.vama.android.data.di
 
-import com.vama.android.data.api.InMemoryUserService
+import android.content.Context
+import com.vama.android.data.api.RoomUserService
 import com.vama.android.data.api.UserService
-import com.vama.android.data.repositories.UserRepository
-import com.vama.android.data.repositories.UserRepositoryImpl
+import com.vama.android.data.database.AppDatabase
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
+@Module
+@InstallIn(SingletonComponent::class)
 object DataModule {
-    fun repository(): UserRepository {
-        return UserRepositoryImpl.instance()
+    @Provides
+    @Singleton
+    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
+        return AppDatabase.getDatabase(context)
     }
 
-    fun provideUserService(): UserService {
-        return InMemoryUserService()
+    @Provides
+    @Singleton
+    fun provideUserService(database: AppDatabase): UserService {
+        return RoomUserService(database)
     }
 }

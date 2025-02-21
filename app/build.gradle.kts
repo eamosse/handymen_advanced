@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.dagger.hilt.android")
-    id("com.google.devtools.ksp")
+    kotlin("kapt")
 }
 
 android {
@@ -42,19 +42,12 @@ android {
 
 dependencies {
     implementation(libs.androidx.room.runtime)
-
-    // If this project uses any Kotlin source, use Kotlin Symbol Processing (KSP)
-    // See Add the KSP plugin to your project
-    ksp(libs.androidx.room.room.compiler)
-    ksp(libs.hilt.compiler)
-    // If this project only uses Java source, use the Java annotationProcessor
-    // No additional plugins are necessary
-    annotationProcessor(libs.androidx.room.room.compiler)
-
-    // optional - Kotlin Extensions and Coroutines support for Room
+    kapt(libs.androidx.room.room.compiler)  // Changed from annotationProcessor to kapt
     implementation(libs.androidx.room.ktx)
 
     implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
+
     implementation(libs.coil)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

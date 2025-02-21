@@ -2,7 +2,6 @@ package com.vama.android.data.repositories
 
 import com.vama.android.data.api.SortCriteria
 import com.vama.android.data.api.UserService
-import com.vama.android.data.di.DataModule
 import com.vama.android.data.model.User
 import javax.inject.Inject
 
@@ -18,27 +17,16 @@ interface UserRepository {
     fun sortBy(criteria: SortCriteria): List<User>
 }
 
-class UserRepositoryImpl @Inject public constructor() : UserRepository {
-    private val service: UserService = DataModule.provideUserService()
-
-    override fun getAll(): List<User> = service.getAll()
-    override fun getById(id: Long): User? = service.getById(id)
-    override fun add(user: User): User = service.add(user)
-    override fun update(user: User): User = service.update(user)
-    override fun delete(id: Long) = service.delete(id)
-    override fun search(query: String): List<User> = service.search(query)
-    override fun toggleFavorite(id: Long) = service.toggleFavorite(id)
-    override fun getFavorites(): List<User> = service.getFavorites()
-    override fun sortBy(criteria: SortCriteria): List<User> = service.sortBy(criteria)
-
-    companion object {
-        @Volatile
-        private var instance: UserRepository? = null
-
-        fun instance(): UserRepository {
-            return instance ?: synchronized(this) {
-                instance ?: UserRepositoryImpl().also { instance = it }
-            }
-        }
-    }
+class UserRepositoryImpl @Inject constructor(
+    private val userService: UserService
+) : UserRepository {
+    override fun getAll(): List<User> = userService.getAll()
+    override fun getById(id: Long): User? = userService.getById(id)
+    override fun add(user: User): User = userService.add(user)
+    override fun update(user: User): User = userService.update(user)
+    override fun delete(id: Long) = userService.delete(id)
+    override fun search(query: String): List<User> = userService.search(query)
+    override fun toggleFavorite(id: Long) = userService.toggleFavorite(id)
+    override fun getFavorites(): List<User> = userService.getFavorites()
+    override fun sortBy(criteria: SortCriteria): List<User> = userService.sortBy(criteria)
 }
