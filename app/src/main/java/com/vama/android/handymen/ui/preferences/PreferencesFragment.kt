@@ -7,10 +7,10 @@ import android.view.*
 import android.widget.Toast
 import androidx.appcompat.widget.SwitchCompat
 import androidx.appcompat.widget.Toolbar
-import androidx.preference.PreferenceFragmentCompat
+import androidx.fragment.app.Fragment
 import com.vama.android.handymen.R
 
-class PreferencesFragment : PreferenceFragmentCompat() {
+class PreferencesFragment : Fragment() {
 
     companion object {
         private const val PREF_MODE_KEY = "isDatabaseMode"
@@ -40,13 +40,10 @@ class PreferencesFragment : PreferenceFragmentCompat() {
         // Charger les préférences partagées
         prefs = requireContext().getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
         isDatabaseMode = prefs.getBoolean(PREF_MODE_KEY, false)
-
-        // Charge les préférences depuis le fichier XML (si vous en avez)
-        setPreferencesFromResource(R.xml.preferences, null)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_preferences, menu)
+        inflater.inflate(R.menu.menu_mode, menu)
         val menuItem = menu.findItem(R.id.action_toggle_mode)
         val modeSwitch = menuItem.actionView as SwitchCompat
 
