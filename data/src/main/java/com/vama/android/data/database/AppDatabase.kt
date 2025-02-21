@@ -5,18 +5,20 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.vama.android.data.utils.Database_Users
 import com.vama.android.data.utils.Dummy_Users
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+// Dans AppDatabase.kt
 @Database(entities = [UserEntity::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
 
     suspend fun populateWithTestData() {
         userDao().let { dao ->
-            Dummy_Users.forEach { user ->
+            Database_Users.forEach { user ->  // Utilisation de Database_Users au lieu de Dummy_Users
                 dao.insert(UserEntity.fromUser(user))
             }
         }

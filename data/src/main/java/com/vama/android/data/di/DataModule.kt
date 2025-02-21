@@ -5,6 +5,7 @@ import com.vama.android.data.api.InMemoryUserService
 import com.vama.android.data.api.RoomUserService
 import com.vama.android.data.api.UserService
 import com.vama.android.data.database.AppDatabase
+import com.vama.android.data.preferences.DataStoreManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,7 +13,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import javax.inject.Qualifier
-
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -31,10 +31,8 @@ object DataModule {
     @Provides
     @Singleton
     @UseDatabaseMode
-    fun provideUseDatabaseMode(): Boolean {
-        // Pour l'instant on retourne toujours true,
-        // plus tard on pourra lire depuis les préférences
-        return true
+    fun provideUseDatabaseMode(dataStoreManager: DataStoreManager): Boolean {
+        return dataStoreManager.isDatabaseMode()
     }
 
     @Provides
