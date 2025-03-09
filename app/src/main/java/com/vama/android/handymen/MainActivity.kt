@@ -19,6 +19,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: MainActivityBinding
 
+    // TODO Adapter les icons dans la bottom navigation
+    // TODO Il manque une vue de détail pour les utilisateurs
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

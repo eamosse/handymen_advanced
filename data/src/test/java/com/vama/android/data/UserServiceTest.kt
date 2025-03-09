@@ -5,6 +5,7 @@ import com.vama.android.data.api.SortCriteria
 import com.vama.android.data.api.UserService
 import com.vama.android.data.model.User
 import com.vama.android.data.repositories.UserRepositoryImpl
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.*
@@ -30,22 +31,24 @@ class UserServiceTest {
 
     // CRUD Operations Tests
     @Test
-    fun `test get all users`() {
+    fun `test get all users`() = runBlocking{
         val users = userService.getAll()
         assertFalse(users.isEmpty())
     }
 
     @Test
     fun `test get user by id`() {
-        val users = userService.getAll()
-        val firstUser = users.first()
-        val foundUser = userService.getById(firstUser.id)
-        assertNotNull(foundUser)
-        assertEquals(firstUser.id, foundUser?.id)
+        runBlocking {
+            val users = userService.getAll()
+            val firstUser = users.first()
+            val foundUser = userService.getById(firstUser.id)
+            assertNotNull(foundUser)
+            assertEquals(firstUser.id, foundUser?.id)
+        }
     }
 
     @Test
-    fun `test add new user`() {
+    fun `test add new user`() = runBlocking{
         val initialCount = userService.getAll().size
         val addedUser = userService.add(testUser)
         
@@ -55,7 +58,7 @@ class UserServiceTest {
     }
 
     @Test
-    fun `test update user`() {
+    fun `test update user`() = runBlocking{
         val addedUser = userService.add(testUser)
         val updatedUser = addedUser.copy(name = "Updated Name")
         
@@ -67,7 +70,7 @@ class UserServiceTest {
     }
 
     @Test
-    fun `test delete user`() {
+    fun `test delete user`() = runBlocking{
         val addedUser = userService.add(testUser)
         val initialCount = userService.getAll().size
         
@@ -78,7 +81,7 @@ class UserServiceTest {
 
     // Favorites Management Tests
     @Test
-    fun `test toggle favorite`() {
+    fun `test toggle favorite`() = runBlocking{
         val addedUser = userService.add(testUser)
         assertFalse(addedUser.favorite)
         
@@ -92,7 +95,7 @@ class UserServiceTest {
     }
 
     @Test
-    fun `test get favorites`() {
+    fun `test get favorites`() = runBlocking{
         val addedUser = userService.add(testUser)
         val initialFavoritesCount = userService.getFavorites().size
         
@@ -102,21 +105,21 @@ class UserServiceTest {
 
     // Search Tests
     @Test
-    fun `test search by name`() {
+    fun `test search by name`()  = runBlocking{
         val addedUser = userService.add(testUser)
         val results = userService.search("Test User")
         assertTrue(results.any { it.id == addedUser.id })
     }
 
     @Test
-    fun `test search by phone`() {
+    fun `test search by phone`() = runBlocking{
         val addedUser = userService.add(testUser)
         val results = userService.search("12 34")
         assertTrue(results.any { it.id == addedUser.id })
     }
 
     @Test
-    fun `test search by address`() {
+    fun `test search by address`() = runBlocking{
         val addedUser = userService.add(testUser)
         val results = userService.search("Test City")
         assertTrue(results.any { it.id == addedUser.id })
@@ -124,7 +127,7 @@ class UserServiceTest {
 
     // Sorting Tests
     @Test
-    fun `test sort by name ascending`() {
+    fun `test sort by name ascending`() = runBlocking{
         val sortedUsers = userService.sortBy(SortCriteria.NAME_ASC)
         for (i in 0 until sortedUsers.size - 1) {
             assertTrue(sortedUsers[i].name <= sortedUsers[i + 1].name)
@@ -132,7 +135,7 @@ class UserServiceTest {
     }
 
     @Test
-    fun `test sort by name descending`() {
+    fun `test sort by name descending`() = runBlocking{
         val sortedUsers = userService.sortBy(SortCriteria.NAME_DESC)
         for (i in 0 until sortedUsers.size - 1) {
             assertTrue(sortedUsers[i].name >= sortedUsers[i + 1].name)
@@ -140,7 +143,7 @@ class UserServiceTest {
     }
 
     @Test
-    fun `test sort by favorite`() {
+    fun `test sort by favorite`() = runBlocking{
         val sortedUsers = userService.sortBy(SortCriteria.FAVORITE)
         for (i in 0 until sortedUsers.size - 1) {
             if (sortedUsers[i].favorite && !sortedUsers[i + 1].favorite) {
@@ -153,7 +156,7 @@ class UserServiceTest {
     }
 
     @Test
-    fun `test sort by distance`() {
+    fun `test sort by distance`() = runBlocking{
         val sortedUsers = userService.sortBy(SortCriteria.DISTANCE)
         for (i in 0 until sortedUsers.size - 1) {
             val distance1 = extractDistance(sortedUsers[i].address)
@@ -186,7 +189,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    fun `test repository delegates to service`() {
+    fun `test repository delegates to service`() = runBlocking{
         val users = repository.getAll()
         assertNotNull(users)
         // More specific delegation tests could be added here if needed

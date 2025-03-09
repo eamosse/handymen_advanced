@@ -16,6 +16,7 @@ data class UserEntity(
     val favorite: Boolean,
     val webSite: String
 ) {
+    // TODO On utilise généralement des fonctions d'extensions pour convertir des entités en modèles et vice versa
     fun toUser(): User = User(
         id = id,
         name = name,
@@ -28,6 +29,7 @@ data class UserEntity(
     )
 
     companion object {
+        // TODO Fonctions d'extensions
         fun fromUser(user: User): UserEntity = UserEntity(
             id = user.id,
             name = user.name,

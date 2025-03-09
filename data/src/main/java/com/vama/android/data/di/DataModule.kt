@@ -35,6 +35,9 @@ object DataModule {
         return dataStoreManager.isDatabaseMode()
     }
 
+    // TODO : Avec cette approche, on ne peut pas injecter RoomUserService ou InMemoryUserService sans redemarrer l'application
+    // TODO Injecter RoomUserService et InMemoryUserService
+    // TODO Déplacer la logique de choix de l'implémentation de UserService dans UserRepositoryImpl
     @Provides
     @Singleton
     fun provideUserService(

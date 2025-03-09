@@ -23,6 +23,7 @@ class AddUserViewModel @Inject constructor(
     fun addUser(name: String, address: String, phone: String, aboutMe: String, website: String) {
         viewModelScope.launch {
             try {
+                // TODO UTiliser un modèle dédié pour la création d'un utilisateur (principe du single responsability)
                 val newUser = User(
                     id = 0,
                     name = name,

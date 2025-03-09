@@ -2,6 +2,7 @@ package com.vama.android.handymen.domain
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
 import com.vama.android.data.model.User
 import com.vama.android.data.repositories.UserRepository
 import com.vama.android.handymen.model.UserModelView
@@ -12,17 +13,12 @@ import javax.inject.Inject
 class UsersUseCase @Inject constructor(
     private val repository: UserRepository
 ) {
-    suspend operator fun invoke(): LiveData<List<UserModelView>> {
-        return withContext(Dispatchers.IO) {
-            MutableLiveData<List<UserModelView>>().apply {
-                val users = repository.getAll()
-                postValue(users.map { it.toModelView() })
-            }
-        }
+    suspend operator fun invoke(): LiveData<List<UserModelView>> = repository.getAll().map {
+        it.map { user -> user.toModelView() }
     }
 }
 
-private fun com.vama.android.data.model.User.toModelView() = UserModelView(
+private fun User.toModelView() = UserModelView(
     id = id,
     name = name,
     avatarUrl = avatarUrl,

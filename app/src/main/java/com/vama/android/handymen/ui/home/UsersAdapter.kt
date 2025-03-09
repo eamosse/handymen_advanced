@@ -12,6 +12,7 @@ import com.vama.android.handymen.model.UserModelView
 import coil.load
 import coil.transform.CircleCropTransformation
 
+// TODO Utiliser une interface de préférence
 class UsersAdapter(
     private val onFavoriteClick: (UserModelView) -> Unit,
     private val onDeleteClick: (UserModelView) -> Unit,

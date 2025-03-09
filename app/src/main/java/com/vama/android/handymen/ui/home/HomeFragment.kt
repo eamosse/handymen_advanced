@@ -29,6 +29,8 @@ class HomeFragment : Fragment() {
         ViewModelProvider(requireActivity())[HomeViewModel::class.java]
     }
 
+
+    // TODO : Afficher un message quand il n'y a pas de données
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -36,6 +38,7 @@ class HomeFragment : Fragment() {
     ): View {
         _binding = HomeFragmentBinding.inflate(inflater, container, false)
 
+        // TODO A déplacer dans une méthode
         // Initialize adapter with favorite and delete click handlers
         adapter = UsersAdapter(
             onFavoriteClick = { user ->
@@ -61,16 +64,13 @@ class HomeFragment : Fragment() {
         setupSearchView()
         setupSortSpinner()
         // Observer la liste filtrée d'utilisateurs
+        // TODO Utiliser une seule lise, les deux ne seront jamais utilisées en même temps
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.filteredUsers.observe(viewLifecycleOwner) { userList ->
                 adapter.submitList(userList)
             }
 
         }
-//        viewModel.users.observe(viewLifecycleOwner) { userList ->
-//                // Mettre à jour l'adapter
-//                adapter.submitList(userList)
-//            }
     }
 
     private fun setupSearchView() {
@@ -85,6 +85,8 @@ class HomeFragment : Fragment() {
             }
         })
     }
+
+    // TODO Pas de texts en dur dans l'app
 
     private fun setupSortSpinner() {
         // Create sort options
@@ -144,6 +146,8 @@ class HomeFragment : Fragment() {
             .setNegativeButton(R.string.cancel, null)
             .show()
     }
+
+    // TODO Pas de texts en dur dans l'app
 
     private fun shareUserProfile(user: UserModelView) {
         val shareText = viewModel.shareUserProfile(user)

@@ -82,6 +82,7 @@ class FavoritesFragment : Fragment() {
             putExtra(Intent.EXTRA_TEXT, shareText)
         }
 
+        // TODO Pas de texts en dur dans l'application
         startActivity(Intent.createChooser(shareIntent, "Partager le profil"))
     }
 
@@ -89,6 +90,8 @@ class FavoritesFragment : Fragment() {
         viewModel.refreshFavorites()
         viewModel.favorites.observe(viewLifecycleOwner) { favorites ->
             // Convert User to UserModelView if necessary
+            // TODO Les transformations de données de font généralement dans les use cases
+            // TODO Aucune logique métier dans les vues
             val favoriteModelViews = favorites.map { user ->
                 com.vama.android.handymen.model.UserModelView(
                     id = user.id,

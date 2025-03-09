@@ -29,15 +29,10 @@ class HomeViewModel @Inject constructor(
         DATE_CREATED_DESC
     }
 
+    // TODO Ces variables sont inutiles
     private val _users = MutableLiveData<List<UserModelView>>()
-    val users: LiveData<List<UserModelView>> = _users
-
     private val _searchQuery = MutableLiveData("")
-    val searchQuery: LiveData<String> = _searchQuery
-
     private val _sortType = MutableLiveData(SortType.NAME_ASC)
-    val sortType: LiveData<SortType> = _sortType
-
     private val _filteredUsers = MediatorLiveData<List<UserModelView>>()
     val filteredUsers: LiveData<List<UserModelView>> = _filteredUsers
 
@@ -63,14 +58,12 @@ class HomeViewModel @Inject constructor(
     fun toggleFavorite(userId: Long) {
         viewModelScope.launch {
             userRepository.toggleFavorite(userId)
-            loadUsers()
         }
     }
 
     fun deleteUser(userId: Long) {
         viewModelScope.launch {
             userRepository.delete(userId)
-            loadUsers()
         }
     }
 
@@ -82,6 +75,7 @@ class HomeViewModel @Inject constructor(
         _sortType.value = sortType
     }
 
+    // TODO : Les sources de données devront appliquer les filtres
     private fun performFilterAndSort() {
         val currentUsers = _users.value ?: return
         val currentQuery = _searchQuery.value ?: ""
@@ -104,6 +98,7 @@ class HomeViewModel @Inject constructor(
         _filteredUsers.value = sortedList
     }
 
+    // TODO : Le text doit être traduit en fonction de la langue du téléphone
     fun shareUserProfile(user: UserModelView): String {
         return """
             Profil Utilisateur:

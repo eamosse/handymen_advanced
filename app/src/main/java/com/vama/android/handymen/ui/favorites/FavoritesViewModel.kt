@@ -15,6 +15,7 @@ class FavoritesViewModel @Inject constructor(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
+    // TODO Obeserver le livedata du repository pour éviter de faire un refresh à chaque fois
     private val _favorites = MutableLiveData<List<User>>()
     val favorites: LiveData<List<User>> = _favorites
 

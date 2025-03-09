@@ -13,6 +13,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
+// TODO Pas de texts en dur dans le code
 class PreferencesFragment : Fragment() {
 
     @Inject
