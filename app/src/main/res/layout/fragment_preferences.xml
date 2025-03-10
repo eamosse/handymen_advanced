@@ -1,23 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="16dp"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Switch pour choisir le mode -->
-    <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/switch_mode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Mode Database activé"
-        android:textSize="16sp" />
-
-    <!-- Conteneur pour d'autres préférences ou contenus -->
-    <FrameLayout
-        android:id="@+id/preferences_container"
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="16dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="16dp" />
+        android:layout_height="wrap_content">
 
-</LinearLayout>
+        <!-- Section Titre -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/data_source_title"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Groupe de RadioButtons pour les sources de données -->
+        <RadioGroup
+            android:id="@+id/radio_data_source"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
+
+            <RadioButton
+                android:id="@+id/radio_memory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/memory_mode" />
+
+            <RadioButton
+                android:id="@+id/radio_database"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/database_mode" />
+
+            <RadioButton
+                android:id="@+id/radio_online"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/online_mode" />
+        </RadioGroup>
+
+        <!-- Switch pour la synchronisation -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sync_title"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginBottom="8dp" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switch_sync"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/enable_sync"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Bouton pour forcer la synchronisation -->
+        <Button
+            android:id="@+id/btn_sync_now"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sync_now"
+            android:enabled="false" />
+
+        <!-- Section d'info -->
+        <TextView
+            android:id="@+id/text_restart_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/restart_required"
+            android:layout_marginTop="16dp"
+            android:textStyle="italic"
+            android:textColor="#FF0000"
+            android:visibility="gone" />
+
+    </LinearLayout>
+</ScrollView>

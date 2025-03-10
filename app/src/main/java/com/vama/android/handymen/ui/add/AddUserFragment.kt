@@ -8,10 +8,9 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import com.vama.android.data.preferences.DataSource
 import com.vama.android.handymen.R
 import com.vama.android.handymen.databinding.AddUserFragmentBinding
-import com.vama.android.handymen.ui.favorites.FavoritesFragment
-import com.vama.android.handymen.ui.home.HomeFragment
 import com.vama.android.handymen.ui.home.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -41,6 +40,9 @@ class AddUserFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupSubmitButton()
         observeAddSuccess()
+
+        // S'assurer que le mode de données en ligne est activé
+        viewModel.setDataSource(DataSource.ONLINE)
     }
 
     private fun setupSubmitButton() {
@@ -52,6 +54,10 @@ class AddUserFragment : Fragment() {
             val website = _binding.websiteInput.text.toString()
 
             if (validateInputs(name, address, phone)) {
+                // Activer l'indicateur de chargement si disponible
+                _binding.submitButton.isEnabled = false
+                _binding.submitButton.text = getString(R.string.adding_user)
+
                 viewModel.addUser(name, address, phone, aboutMe, website)
             }
         }
@@ -78,12 +84,16 @@ class AddUserFragment : Fragment() {
 
     private fun observeAddSuccess() {
         viewModel.addSuccess.observe(viewLifecycleOwner) { event ->
+            // Réactiver le bouton quel que soit le résultat
+            _binding.submitButton.isEnabled = true
+            _binding.submitButton.text = getString(R.string.add_user)
+
             event.getContentIfNotHandled()?.let { success ->
                 if (success) {
                     clearInputs()
                     Toast.makeText(context, R.string.user_added_success, Toast.LENGTH_SHORT).show()
 
-                    // Appel explicit au HomeViewModel si tu veux rafraîchir la liste
+                    // Appel explicit au HomeViewModel pour rafraîchir la liste
                     sharedViewModel.loadUsers()
                 } else {
                     Toast.makeText(context, R.string.user_added_error, Toast.LENGTH_SHORT).show()

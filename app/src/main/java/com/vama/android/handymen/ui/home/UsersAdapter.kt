@@ -1,5 +1,6 @@
 package com.vama.android.handymen.ui.home
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -34,8 +35,9 @@ class UsersAdapter(
         return mDiffer.currentList.size
     }
 
-    fun submitList(it: List<UserModelView>) {
-        return mDiffer.submitList(it)
+    fun submitList(newList: List<UserModelView>) {
+        Log.d("UsersAdapter", "Soumission d'une nouvelle liste de ${newList.size} utilisateurs")
+        mDiffer.submitList(ArrayList(newList)) // Créer une nouvelle liste pour forcer la détection de changements
     }
 
     private object DiffCallback : DiffUtil.ItemCallback<UserModelView>() {
@@ -50,7 +52,8 @@ class UsersAdapter(
             oldItem: UserModelView,
             newItem: UserModelView
         ): Boolean {
-            return oldItem == newItem
+            // S'assurer que le changement de statut favori est détecté
+            return oldItem == newItem && oldItem.favorite == newItem.favorite
         }
     }
 }

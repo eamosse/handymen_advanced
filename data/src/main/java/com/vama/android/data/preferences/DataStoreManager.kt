@@ -13,14 +13,42 @@ class DataStoreManager @Inject constructor(
     private val prefs: SharedPreferences = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
 
     companion object {
-        private const val PREF_MODE_KEY = "isDatabaseMode"
+        private const val PREF_DATA_SOURCE_KEY = "data_source"
+        private const val PREF_SYNC_ENABLED_KEY = "sync_enabled"
+    }
+
+    fun getDataSource(): DataSource {
+        val sourceOrdinal = prefs.getInt(PREF_DATA_SOURCE_KEY, DataSource.MEMORY.ordinal)
+        return DataSource.entries[sourceOrdinal]
+    }
+
+    fun setDataSource(source: DataSource) {
+        prefs.edit().putInt(PREF_DATA_SOURCE_KEY, source.ordinal).apply()
     }
 
     fun isDatabaseMode(): Boolean {
-        return prefs.getBoolean(PREF_MODE_KEY, true)
+        return getDataSource() == DataSource.DATABASE
     }
 
     fun setDatabaseMode(isEnabled: Boolean) {
-        prefs.edit().putBoolean(PREF_MODE_KEY, isEnabled).apply()
+        setDataSource(if (isEnabled) DataSource.DATABASE else DataSource.MEMORY)
+    }
+
+    fun isOnlineMode(): Boolean {
+        return getDataSource() == DataSource.ONLINE
+    }
+
+    fun setOnlineMode(isEnabled: Boolean) {
+        if (isEnabled) {
+            setDataSource(DataSource.ONLINE)
+        }
+    }
+
+    fun isSyncEnabled(): Boolean {
+        return prefs.getBoolean(PREF_SYNC_ENABLED_KEY, false)
+    }
+
+    fun setSyncEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(PREF_SYNC_ENABLED_KEY, enabled).apply()
     }
 }
