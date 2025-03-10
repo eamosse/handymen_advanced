@@ -36,5 +36,20 @@
     <string name="delete_user">Delete user</string>
     <string name="title_preferences">Preferences</string>
 
+    <!-- Data source preferences -->
+    <string name="data_source_title">Data Source</string>
+    <string name="memory_mode">In-Memory Mode</string>
+    <string name="database_mode">Local Database Mode</string>
+    <string name="online_mode">Online API Mode</string>
+
+    <!-- Sync preferences -->
+    <string name="sync_title">Synchronization</string>
+    <string name="enable_sync">Enable data synchronization</string>
+    <string name="sync_now">Synchronize Now</string>
+    <string name="sync_started">Synchronization started</string>
+    <string name="sync_completed">Synchronization completed</string>
+    <string name="sync_failed">Synchronization failed</string>
+    <string name="restart_required">Please restart the application to apply changes</string>
+
 
 </resources>

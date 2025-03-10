@@ -1,10 +1,6 @@
 package com.vama.android.data.api.online
 
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface ApiService {
 
@@ -12,11 +8,19 @@ interface ApiService {
     suspend fun getAll(): List<UserResponse>
 
     @GET("handymen/{id}")
-    suspend fun get(@retrofit2.http.Path("id") id: String): UserResponse
+    suspend fun get(@Path("id") id: String): UserResponse
 
-    @GET("handymen/search")
-    suspend fun search(@retrofit2.http.Query("filter") search: String): List<UserResponse>
+    // Note: La recherche n'est pas implémentée dans le serveur, donc cette méthode ne fonctionnera pas
+    // Nous devrons faire une recherche côté client
+    @GET("handymen")
+    suspend fun search(): List<UserResponse> // On récupère tous et on filtre côté client
 
     @POST("handymen")
-    suspend fun create(@retrofit2.http.Body neighbor: UserRequest): UserResponse
+    suspend fun create(@Body handyman: UserRequest): UserResponse
+
+    @PUT("handymen/{id}")
+    suspend fun update(@Path("id") id: String, @Body handyman: UserRequest): UserResponse
+
+    @DELETE("handymen/{id}")
+    suspend fun delete(@Path("id") id: String)
 }
