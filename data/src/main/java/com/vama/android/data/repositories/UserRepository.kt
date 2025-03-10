@@ -50,17 +50,27 @@ class UserRepositoryImpl @Inject constructor(
     private var lastSearchQuery: String? = null
 
     private suspend fun refreshUsers() {
-        // Apply any active filters or sorting
-        when {
+        Log.d("UserRepository", "Rafraîchissement des utilisateurs en cours...")
+
+        val users = when {
             lastSearchQuery != null -> {
-                _users.value = currentUserService.search(lastSearchQuery!!)
+                Log.d("UserRepository", "Applique le filtre de recherche: $lastSearchQuery")
+                currentUserService.search(lastSearchQuery!!)
             }
             lastSortCriteria != null -> {
-                _users.value = currentUserService.sortBy(lastSortCriteria!!)
+                Log.d("UserRepository", "Applique le tri: $lastSortCriteria")
+                currentUserService.sortBy(lastSortCriteria!!)
             }
             else -> {
-                _users.value = currentUserService.getAll()
+                Log.d("UserRepository", "Récupère tous les utilisateurs")
+                currentUserService.getAll()
             }
+        }
+
+        // Important: Mettre à jour la valeur sur le thread principal pour notifier les observateurs
+        withContext(Dispatchers.Main) {
+            Log.d("UserRepository", "Mise à jour de la LiveData avec ${users.size} utilisateurs")
+            _users.value = users
         }
     }
 
@@ -172,32 +182,32 @@ class UserRepositoryImpl @Inject constructor(
             // Si la synchronisation est activée, changer également sur le serveur
             if (dataStoreManager.isSyncEnabled() && getCurrentDataSource() != DataSource.ONLINE) {
                 try {
-                    Log.d("UserRepository", "Tentative de mise à jour sur le serveur...")
-                    // Utiliser withContext au lieu de lancer un nouveau coroutine pour attendre la réponse
+                    Log.d("UserRepository", "Synchronisation activée, mise à jour sur le serveur")
                     withContext(Dispatchers.IO) {
                         try {
                             onlineUserService.toggleFavorite(id)
                             Log.d("UserRepository", "Statut favori changé sur le serveur avec succès")
                         } catch (e: Exception) {
                             Log.e("UserRepository", "Erreur lors de la mise à jour sur le serveur", e)
-                            // Ne pas propager cette erreur, car la mise à jour locale a réussi
                         }
                     }
                 } catch (e: Exception) {
                     Log.e("UserRepository", "Erreur lors de la mise à jour sur le serveur", e)
-                    // Ne pas propager cette erreur, car la mise à jour locale a réussi
                 }
             }
-
-            // Rafraîchir l'interface utilisateur
-            refreshUsers()
-            Log.d("UserRepository", "Interface utilisateur rafraîchie après changement de statut favori")
-
         } catch (e: Exception) {
             Log.e("UserRepository", "Erreur lors du changement de statut favori", e)
-            // Tenter de rafraîchir l'interface quand même pour montrer l'état actuel
-            refreshUsers()
-            throw e
+        } finally {
+            // IMPORTANT: Rafraîchir l'interface utilisateur en s'assurant que c'est fait sur le thread principal
+            withContext(Dispatchers.Main) {
+                try {
+                    Log.d("UserRepository", "Début du rafraîchissement de l'interface utilisateur")
+                    refreshUsers()
+                    Log.d("UserRepository", "Interface utilisateur rafraîchie après changement de statut favori")
+                } catch (e: Exception) {
+                    Log.e("UserRepository", "Erreur lors du rafraîchissement de l'interface utilisateur", e)
+                }
+            }
         }
     }
 

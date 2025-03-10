@@ -1,5 +1,6 @@
 package com.vama.android.handymen.ui.home
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -56,8 +57,18 @@ class HomeViewModel @Inject constructor(
     }
 
     fun toggleFavorite(userId: Long) {
+        Log.d("HomeViewModel", "Demande de basculement de favori pour l'utilisateur: $userId")
         viewModelScope.launch {
-            userRepository.toggleFavorite(userId)
+            try {
+                userRepository.toggleFavorite(userId)
+
+                // Optionnel: forcer explicitement le rechargement
+                loadUsers()
+
+                Log.d("HomeViewModel", "Opération de basculement de favori terminée avec succès")
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Erreur lors du basculement de favori", e)
+            }
         }
     }
 
