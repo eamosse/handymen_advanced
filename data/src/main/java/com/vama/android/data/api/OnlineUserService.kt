@@ -1,5 +1,6 @@
 package com.vama.android.data.api
 
+import android.util.Log
 import com.vama.android.data.api.online.ApiService
 import com.vama.android.data.api.online.UserRequest
 import com.vama.android.data.model.User
@@ -14,13 +15,17 @@ class OnlineUserService @Inject constructor(
 
     override suspend fun getAll(): List<User> = withContext(Dispatchers.IO) {
         try {
-            apiService.getAll().map { it.toUser() }
+            Log.d("OnlineUserService", "Récupération de tous les utilisateurs")
+            val users = apiService.getAll().map { it.toUser() }
+            Log.d("OnlineUserService", "Récupération réussie: ${users.size} utilisateurs")
+            users
         } catch (e: Exception) {
             // Log the error and return empty list
-            e.printStackTrace()
+            Log.e("OnlineUserService", "Erreur lors de la récupération des utilisateurs", e)
             emptyList()
         }
     }
+
 
     override suspend fun getById(id: Long): User? = withContext(Dispatchers.IO) {
         try {
@@ -40,12 +45,29 @@ class OnlineUserService @Inject constructor(
             aboutMe = user.aboutMe,
             webSite = user.webSite
         )
+
+        Log.d("OnlineUserService", "Ajout d'un utilisateur: ${user.name}")
+
         try {
             val response = apiService.create(request)
-            response.toUser()
+            Log.d("OnlineUserService", "Réponse du serveur: $response")
+
+            // Transformation de la réponse en User
+            val createdUser = response.toUser()
+            Log.d("OnlineUserService", "Utilisateur créé avec l'ID: ${createdUser.id}")
+
+            createdUser
         } catch (e: Exception) {
             // If API fails, return the original user (should be handled better in production)
-            e.printStackTrace()
+            Log.e("OnlineUserService", "Erreur lors de l'ajout de l'utilisateur", e)
+            if (e is retrofit2.HttpException) {
+                try {
+                    val errorBody = e.response()?.errorBody()?.string()
+                    Log.e("OnlineUserService", "Corps de l'erreur: $errorBody")
+                } catch (e2: Exception) {
+                    // Ignorer si on ne peut pas lire le corps de l'erreur
+                }
+            }
             user
         }
     }

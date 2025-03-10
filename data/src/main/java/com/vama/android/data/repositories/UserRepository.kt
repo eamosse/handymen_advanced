@@ -1,9 +1,11 @@
 package com.vama.android.data.repositories
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.vama.android.data.api.SortCriteria
 import com.vama.android.data.api.UserService
+import com.vama.android.data.api.online.UserRequest
 import com.vama.android.data.di.DatabaseUserService
 import com.vama.android.data.di.MemoryUserService
 import com.vama.android.data.di.RemoteUserService
@@ -174,98 +176,108 @@ class UserRepositoryImpl @Inject constructor(
     override fun setSyncEnabled(enabled: Boolean) {
         dataStoreManager.setSyncEnabled(enabled)
     }
-    suspend fun syncLocalToOnline(): Boolean = withContext(Dispatchers.IO) {
-        try {
-            // 1. Récupérer toutes les données de la source locale
-            val localUsers = when (getCurrentDataSource()) {
-                DataSource.MEMORY -> memoryUserService.getAll()
-                DataSource.DATABASE -> databaseUserService.getAll()
-                DataSource.ONLINE -> {
-                    // Si on est déjà en mode online, on peut récupérer toutes les données
-                    // mais cela n'a pas vraiment de sens de faire un syncLocalToOnline dans ce cas
-                    return@withContext false
-                }
-            }
-
-            // Si aucune donnée locale, rien à synchroniser
-            if (localUsers.isEmpty()) {
-                return@withContext true
-            }
-
-            // 2. Récupérer tous les utilisateurs distants pour pouvoir les supprimer
-            val onlineUsers = onlineUserService.getAll()
-
-            // 3. Supprimer tous les utilisateurs de la base distante
-            for (onlineUser in onlineUsers) {
-                onlineUserService.delete(onlineUser.id)
-            }
-
-            // 4. Ajouter tous les utilisateurs locaux à la base distante
-            for (localUser in localUsers) {
-                // On crée une copie de l'utilisateur sans son ID pour qu'un nouvel ID soit généré
-                // car MongoDB va générer son propre ID
-                val userToAdd = localUser.copy(id = 0)
-                onlineUserService.add(userToAdd)
-            }
-
-            // 5. Rafraîchir l'UI si nécessaire
-            if (getCurrentDataSource() == DataSource.ONLINE) {
-                refreshUsers()
-            }
-
-            return@withContext true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return@withContext false
-        }
-    }
+    // Modified syncData method in UserRepositoryImpl class
     override suspend fun syncData() {
+        Log.d("UserRepository", "Démarrage de la synchronisation")
         if (!dataStoreManager.isSyncEnabled()) {
+            Log.d("UserRepository", "Synchronisation désactivée")
             return
         }
 
         try {
             // Synchronize data based on the current source
-            when (getCurrentDataSource()) {
+            val currentSource = getCurrentDataSource()
+            Log.d("UserRepository", "Source de données actuelle: $currentSource")
+
+            when (currentSource) {
+                DataSource.MEMORY, DataSource.DATABASE, DataSource.ONLINE -> {
+                    Log.d("UserRepository", "Synchronisation de ${currentSource.name} vers ONLINE")
+                    val success = syncLocalToOnline()
+                    Log.d("UserRepository", "Résultat de la synchronisation: ${if (success) "Succès" else "Échec"}")
+                }
+//                DataSource.ONLINE -> {
+//                    Log.d("UserRepository", "Synchronisation depuis ONLINE vers local")
+//                    // Sync from online to local
+//                    val onlineUsers = onlineUserService.getAll()
+//                    Log.d("UserRepository", "Récupération de ${onlineUsers.size} utilisateurs en ligne")
+//
+//                    // Sync to memory
+//                    onlineUsers.forEach { user ->
+//                        val existingUser = memoryUserService.getById(user.id)
+//                        if (existingUser == null) {
+//                            memoryUserService.add(user)
+//                        } else {
+//                            memoryUserService.update(user)
+//                        }
+//                    }
+//
+//                    // Sync to database
+//                    onlineUsers.forEach { user ->
+//                        val existingUser = databaseUserService.getById(user.id)
+//                        if (existingUser == null) {
+//                            databaseUserService.add(user)
+//                        } else {
+//                            databaseUserService.update(user)
+//                        }
+//                    }
+//                }
+            }
+
+            refreshUsers()
+            Log.d("UserRepository", "Synchronisation terminée avec succès")
+        } catch (e: Exception) {
+            Log.e("UserRepository", "Erreur lors de la synchronisation", e)
+            throw e
+        }
+    }
+
+    // Improved syncLocalToOnline method
+    suspend fun syncLocalToOnline(): Boolean = withContext(Dispatchers.IO) {
+        Log.d("UserRepository", "Début de syncLocalToOnline")
+        try {
+            // 1. Récupérer toutes les données de la source locale
+            val localUsers = when (getCurrentDataSource()) {
                 DataSource.MEMORY -> {
-                    // Sync from online to memory
-                    val onlineUsers = onlineUserService.getAll()
-                    onlineUsers.forEach { user ->
-                        val existingUser = memoryUserService.getById(user.id)
-                        if (existingUser == null) {
-                            memoryUserService.add(user)
-                        } else {
-                            memoryUserService.update(user)
-                        }
-                    }
+                    Log.d("UserRepository", "Récupération des utilisateurs depuis MEMORY")
+                    memoryUserService.getAll()
                 }
                 DataSource.DATABASE -> {
-                    // Sync from online to database
-                    val onlineUsers = onlineUserService.getAll()
-                    onlineUsers.forEach { user ->
-                        val existingUser = databaseUserService.getById(user.id)
-                        if (existingUser == null) {
-                            databaseUserService.add(user)
-                        } else {
-                            databaseUserService.update(user)
-                        }
-                    }
+                    Log.d("UserRepository", "Récupération des utilisateurs depuis DATABASE")
+                    databaseUserService.getAll()
                 }
                 DataSource.ONLINE -> {
-                    // Sync from database to online
-                    val databaseUsers = databaseUserService.getAll()
-                    databaseUsers.forEach { user ->
-                        onlineUserService.add(user)
-                    }
-                    // Refresh the displayed users after sync
-                    refreshUsers()
+                    Log.d("UserRepository", "Déjà en mode ONLINE, rien à synchroniser")
+                    return@withContext true
                 }
             }
 
-            // Refresh the displayed users after sync
-            refreshUsers()
+            Log.d("UserRepository", "Nombre d'utilisateurs locaux: ${localUsers.size}")
+
+            // Si aucune donnée locale, rien à synchroniser
+            if (localUsers.isEmpty()) {
+                Log.d("UserRepository", "Aucun utilisateur local, rien à synchroniser")
+                return@withContext true
+            }
+
+            // 2. Ajouter tous les utilisateurs locaux à la base distante
+            var successCount = 0
+            for (localUser in localUsers) {
+                try {
+                    Log.d("UserRepository", "Ajout de l'utilisateur ${localUser.name} (ID: ${localUser.id}) à la base distante")
+                    val addedUser = onlineUserService.add(localUser)
+                    Log.d("UserRepository", "Utilisateur ajouté avec succès, nouvel ID: ${addedUser.id}")
+                    successCount++
+                } catch (e: Exception) {
+                    Log.e("UserRepository", "Erreur lors de l'ajout de l'utilisateur ${localUser.id}", e)
+                    // Continue avec les autres ajouts même si un échoue
+                }
+            }
+
+            Log.d("UserRepository", "Synchronisation terminée. $successCount/${localUsers.size} utilisateurs synchronisés")
+            return@withContext successCount > 0
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("UserRepository", "Erreur lors de la synchronisation", e)
+            return@withContext false
         }
     }
 }

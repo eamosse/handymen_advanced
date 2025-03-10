@@ -46,7 +46,7 @@ class ApiModule {
     fun provideRetrofit(moshi: Moshi): Retrofit {
         return Retrofit.Builder()
             .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .baseUrl("http://192.168.15.151:8010/api/") // Utiliser l'URL de votre serveur Node.js
+            .baseUrl("http://192.168.1.144:8010/api/") // Utiliser l'URL de votre serveur Node.js
             .build()
     }
 
