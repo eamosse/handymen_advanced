@@ -2,11 +2,8 @@ package com.vama.android.data.api.online
 
 import com.squareup.moshi.Json
 import com.vama.android.data.model.User
-// Dans UserResponse.kt
-
 import android.util.Log
 import kotlin.math.absoluteValue
-// Dans UserResponse.kt
 
 // Map pour stocker la correspondance entre IDs MongoDB et IDs locaux
 private val idMapping = mutableMapOf<String, Long>()
@@ -53,6 +50,12 @@ data class UserResponse(
         // Méthode pour retrouver l'ID MongoDB à partir d'un ID local
         fun getMongoId(localId: Long): String? {
             return idMapping.entries.find { it.value == localId }?.key
+        }
+
+        // Méthode pour ajouter un mapping entre ID MongoDB et ID local
+        fun addMapping(mongoId: String, localId: Long) {
+            Log.d("UserResponse", "Ajout d'un mapping: MongoDB ID $mongoId -> Local ID $localId")
+            idMapping[mongoId] = localId
         }
     }
 }

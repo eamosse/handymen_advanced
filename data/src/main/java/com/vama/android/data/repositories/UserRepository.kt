@@ -147,21 +147,58 @@ class UserRepositoryImpl @Inject constructor(
         return users
     }
 
-    override suspend fun toggleFavorite(id: Long) {
-        currentUserService.toggleFavorite(id)
+    // Dans UserRepositoryImpl, améliorer la méthode toggleFavorite
 
-        // If sync is enabled, toggle in online storage as well
-        if (dataStoreManager.isSyncEnabled() && getCurrentDataSource() != DataSource.ONLINE) {
-            CoroutineScope(Dispatchers.IO).launch {
+    // Dans UserRepositoryImpl, méthode toggleFavorite corrigée
+
+    override suspend fun toggleFavorite(id: Long) {
+        Log.d("UserRepository", "Changement du statut favori pour l'utilisateur avec ID: $id")
+
+        try {
+            // Obtenir l'utilisateur avant la modification
+            val user = currentUserService.getById(id)
+
+            if (user == null) {
+                Log.e("UserRepository", "Utilisateur non trouvé avec ID: $id")
+                return
+            }
+
+            Log.d("UserRepository", "Utilisateur trouvé, statut favori actuel: ${user.favorite}")
+
+            // Changer le statut favori dans le service actuel
+            currentUserService.toggleFavorite(id)
+            Log.d("UserRepository", "Statut favori changé dans le service actuel")
+
+            // Si la synchronisation est activée, changer également sur le serveur
+            if (dataStoreManager.isSyncEnabled() && getCurrentDataSource() != DataSource.ONLINE) {
                 try {
-                    onlineUserService.toggleFavorite(id)
+                    Log.d("UserRepository", "Tentative de mise à jour sur le serveur...")
+                    // Utiliser withContext au lieu de lancer un nouveau coroutine pour attendre la réponse
+                    withContext(Dispatchers.IO) {
+                        try {
+                            onlineUserService.toggleFavorite(id)
+                            Log.d("UserRepository", "Statut favori changé sur le serveur avec succès")
+                        } catch (e: Exception) {
+                            Log.e("UserRepository", "Erreur lors de la mise à jour sur le serveur", e)
+                            // Ne pas propager cette erreur, car la mise à jour locale a réussi
+                        }
+                    }
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Log.e("UserRepository", "Erreur lors de la mise à jour sur le serveur", e)
+                    // Ne pas propager cette erreur, car la mise à jour locale a réussi
                 }
             }
-        }
 
-        refreshUsers()
+            // Rafraîchir l'interface utilisateur
+            refreshUsers()
+            Log.d("UserRepository", "Interface utilisateur rafraîchie après changement de statut favori")
+
+        } catch (e: Exception) {
+            Log.e("UserRepository", "Erreur lors du changement de statut favori", e)
+            // Tenter de rafraîchir l'interface quand même pour montrer l'état actuel
+            refreshUsers()
+            throw e
+        }
     }
 
     override suspend fun getFavorites(): List<User> = currentUserService.getFavorites()

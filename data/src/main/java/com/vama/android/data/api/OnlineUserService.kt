@@ -73,8 +73,14 @@ class OnlineUserService @Inject constructor(
         }
     }
 
+    // Dans OnlineUserService.kt, améliorer la méthode update
+
+// Dans OnlineUserService.kt, améliorer la méthode update
+
     override suspend fun update(user: User): User = withContext(Dispatchers.IO) {
         try {
+            Log.d("OnlineUserService", "Mise à jour de l'utilisateur avec ID: ${user.id}")
+
             val request = UserRequest(
                 name = user.name,
                 phone = user.phoneNumber,
@@ -84,15 +90,60 @@ class OnlineUserService @Inject constructor(
                 aboutMe = user.aboutMe,
                 webSite = user.webSite
             )
-            // API supporte maintenant les mises à jour
-            val response = apiService.update(user.id.toString(), request)
-            response.toUser()
+
+            // Vérifier si nous avons un ID MongoDB correspondant
+            val mongoId = UserResponse.getMongoId(user.id)
+
+            if (mongoId != null) {
+                // Utiliser l'ID MongoDB que nous avons en cache
+                Log.d("OnlineUserService", "ID MongoDB correspondant trouvé en cache: $mongoId")
+                val response = apiService.update(mongoId, request)
+                Log.d("OnlineUserService", "Mise à jour réussie sur le serveur avec ID MongoDB en cache")
+                return@withContext response.toUser()
+            } else {
+                // Si nous n'avons pas d'ID en cache, chercher dans tous les utilisateurs
+                Log.d("OnlineUserService", "Pas d'ID MongoDB en cache, recherche parmi tous les utilisateurs")
+                val allUsers = apiService.getAll()
+                val matchingUser = allUsers.find { it.toUser().id == user.id }
+
+                if (matchingUser != null) {
+                    // Utiliser l'ID MongoDB trouvé
+                    val foundMongoId = matchingUser.id
+                    Log.d("OnlineUserService", "ID MongoDB correspondant trouvé: $foundMongoId")
+                    val response = apiService.update(foundMongoId, request)
+                    Log.d("OnlineUserService", "Mise à jour réussie sur le serveur")
+
+                    // Ajouter le mapping pour les futures requêtes
+                    UserResponse.addMapping(foundMongoId, user.id)
+
+                    return@withContext response.toUser()
+                } else {
+                    // Dernier recours : essayer avec l'ID local
+                    Log.d("OnlineUserService", "Aucun utilisateur correspondant trouvé, tentative avec l'ID local")
+                    try {
+                        val response = apiService.update(user.id.toString(), request)
+                        Log.d("OnlineUserService", "Mise à jour réussie sur le serveur avec ID local")
+                        return@withContext response.toUser()
+                    } catch (e: Exception) {
+                        Log.e("OnlineUserService", "Erreur lors de la mise à jour avec ID local", e)
+                        if (e is HttpException) {
+                            try {
+                                val errorBody = e.response()?.errorBody()?.string()
+                                Log.e("OnlineUserService", "Corps de l'erreur: $errorBody")
+                            } catch (e2: Exception) {
+                                // Ignorer si on ne peut pas lire le corps de l'erreur
+                            }
+                        }
+                        throw e
+                    }
+                }
+            }
         } catch (e: Exception) {
+            Log.e("OnlineUserService", "Erreur lors de la mise à jour de l'utilisateur", e)
             e.printStackTrace()
-            user
+            return@withContext user // Retourner l'utilisateur non modifié en cas d'erreur
         }
     }
-
 
     override suspend fun delete(id: Long) = withContext(Dispatchers.IO) {
         try {
@@ -165,15 +216,83 @@ class OnlineUserService @Inject constructor(
 
     override suspend fun toggleFavorite(id: Long) = withContext(Dispatchers.IO) {
         try {
-            // Get the current user
-            val user = getById(id) ?: return@withContext
+            Log.d("OnlineUserService", "Basculement du statut favori pour l'utilisateur avec ID local: $id")
 
-            // Toggle favorite status
-            val updated = user.copy(favorite = !user.favorite)
+            // 1. Vérifier si nous avons un ID MongoDB correspondant dans le mapping
+            val mongoId = UserResponse.getMongoId(id)
 
-            // Update the user
-            update(updated)
+            if (mongoId != null) {
+                // Nous avons trouvé l'ID MongoDB dans le cache
+                Log.d("OnlineUserService", "ID MongoDB correspondant trouvé en cache: $mongoId")
+
+                // Récupérer l'utilisateur complet depuis la liste
+                val allUsers = apiService.getAll()
+                val matchingUser = allUsers.find { it.id == mongoId }
+
+                if (matchingUser != null) {
+                    Log.d("OnlineUserService", "Utilisateur trouvé avec ID MongoDB: $mongoId, nom: ${matchingUser.name}")
+
+                    // Créer la requête avec le statut favori inversé
+                    val request = UserRequest(
+                        name = matchingUser.name,
+                        phone = matchingUser.phoneNumber,
+                        address = matchingUser.address,
+                        isFavorite = !matchingUser.favorite,
+                        avatarUrl = matchingUser.avatarUrl,
+                        aboutMe = matchingUser.aboutMe,
+                        webSite = matchingUser.webSite
+                    )
+
+                    // Mettre à jour l'utilisateur sur le serveur
+                    val response = apiService.update(mongoId, request)
+                    Log.d("OnlineUserService", "Mise à jour réussie sur le serveur avec l'ID MongoDB: $mongoId")
+                    return@withContext
+                }
+            }
+
+            // 2. Si pas d'ID en cache, chercher directement par l'ID local dans la liste complète
+            Log.d("OnlineUserService", "Pas d'ID MongoDB en cache, recherche de l'utilisateur dans la liste complète")
+            val allUsers = apiService.getAll()
+
+            // Convertir chaque UserResponse en User et comparer les IDs locaux
+            val matchingUserAndResponse = allUsers.map {
+                val user = it.toUser()
+                Pair(it, user)
+            }.find { (_, user) ->
+                user.id == id
+            }
+
+            if (matchingUserAndResponse != null) {
+                val (response, user) = matchingUserAndResponse
+                val foundMongoId = response.id
+
+                Log.d("OnlineUserService", "Utilisateur trouvé dans la liste complète: ${user.name}, ID MongoDB: $foundMongoId")
+
+                // Créer la requête avec le statut favori inversé
+                val request = UserRequest(
+                    name = user.name,
+                    phone = user.phoneNumber,
+                    address = user.address,
+                    isFavorite = !user.favorite,
+                    avatarUrl = user.avatarUrl,
+                    aboutMe = user.aboutMe,
+                    webSite = user.webSite
+                )
+
+                // Mettre à jour l'utilisateur sur le serveur
+                apiService.update(foundMongoId, request)
+                Log.d("OnlineUserService", "Mise à jour réussie sur le serveur avec l'ID MongoDB trouvé: $foundMongoId")
+
+                // Stocker la correspondance pour les futures requêtes
+                UserResponse.addMapping(foundMongoId, id)
+
+                return@withContext
+            }
+
+            // 3. Si toutes les méthodes ont échoué, journaliser l'erreur
+            Log.e("OnlineUserService", "Impossible de trouver l'utilisateur avec l'ID local: $id")
         } catch (e: Exception) {
+            Log.e("OnlineUserService", "Erreur lors du basculement du statut favori pour l'utilisateur avec ID: $id", e)
             e.printStackTrace()
         }
     }
