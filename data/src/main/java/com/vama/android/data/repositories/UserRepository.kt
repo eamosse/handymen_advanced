@@ -110,20 +110,29 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun delete(id: Long) {
-        currentUserService.delete(id)
+        Log.d("UserRepository", "Suppression de l'utilisateur avec ID: $id")
 
-        // If sync is enabled, delete from online storage as well
+        // Supprimer l'utilisateur du service actuel
+        currentUserService.delete(id)
+        Log.d("UserRepository", "Utilisateur supprimé du service actuel")
+
+        // Si la synchronisation est activée, supprimer également de l'online storage
         if (dataStoreManager.isSyncEnabled() && getCurrentDataSource() != DataSource.ONLINE) {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
+                    Log.d("UserRepository", "Tentative de suppression sur le serveur...")
                     onlineUserService.delete(id)
+                    Log.d("UserRepository", "Utilisateur supprimé du serveur")
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Log.e("UserRepository", "Erreur lors de la suppression sur le serveur", e)
                 }
             }
         }
 
+        // Importante correction : Assurez-vous de rafraîchir l'interface utilisateur
+        // Cela va actualiser la liste des utilisateurs dans le LiveData
         refreshUsers()
+        Log.d("UserRepository", "Interface utilisateur rafraîchie après suppression")
     }
 
     override suspend fun search(query: String): List<User> {

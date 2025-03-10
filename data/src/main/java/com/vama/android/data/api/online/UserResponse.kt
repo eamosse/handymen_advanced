@@ -6,6 +6,10 @@ import com.vama.android.data.model.User
 
 import android.util.Log
 import kotlin.math.absoluteValue
+// Dans UserResponse.kt
+
+// Map pour stocker la correspondance entre IDs MongoDB et IDs locaux
+private val idMapping = mutableMapOf<String, Long>()
 
 data class UserResponse(
     @Json(name = "_id") val id: String = "",
@@ -18,18 +22,17 @@ data class UserResponse(
     @Json(name = "webSite") val webSite: String = ""
 ) {
     fun toUser(): User {
-        // Ajout de logs pour voir la conversion
         Log.d("UserResponse", "Conversion de réponse API en objet User")
         Log.d("UserResponse", "ID original: $id")
 
-        val userId = try {
-            // MongoDB retourne des IDs comme "60f5e8b3e6b3a50015b9e1a2"
-            // qui ne peuvent pas être convertis en Long directement
-            // Utilisons le hashCode comme solution temporaire
-            id.hashCode().toLong().absoluteValue
-        } catch (e: Exception) {
-            Log.e("UserResponse", "Erreur lors de la conversion de l'ID", e)
-            0L
+        // Vérifier si nous avons déjà une correspondance pour cet ID
+        val userId = if (idMapping.containsKey(id)) {
+            idMapping[id]!!
+        } else {
+            // Générer un nouvel ID local et le stocker dans la map
+            val newId = id.hashCode().toLong().absoluteValue
+            idMapping[id] = newId
+            newId
         }
 
         Log.d("UserResponse", "ID converti: $userId")
@@ -44,5 +47,12 @@ data class UserResponse(
             favorite = favorite,
             webSite = webSite
         )
+    }
+
+    companion object {
+        // Méthode pour retrouver l'ID MongoDB à partir d'un ID local
+        fun getMongoId(localId: Long): String? {
+            return idMapping.entries.find { it.value == localId }?.key
+        }
     }
 }

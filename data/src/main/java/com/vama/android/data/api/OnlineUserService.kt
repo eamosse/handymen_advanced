@@ -3,6 +3,7 @@ package com.vama.android.data.api
 import android.util.Log
 import com.vama.android.data.api.online.ApiService
 import com.vama.android.data.api.online.UserRequest
+import com.vama.android.data.api.online.UserResponse
 import com.vama.android.data.model.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -94,11 +95,53 @@ class OnlineUserService @Inject constructor(
 
     override suspend fun delete(id: Long) = withContext(Dispatchers.IO) {
         try {
-            // Assuming the API has been updated to support deletion
-            apiService.delete(id.toString())
+            Log.d("OnlineUserService", "Suppression de l'utilisateur avec ID: $id")
+
+            // Vérifier si nous avons un ID MongoDB correspondant
+            val mongoId = UserResponse.getMongoId(id)
+
+            if (mongoId != null) {
+                // Utiliser l'ID MongoDB que nous avons en cache
+                Log.d("OnlineUserService", "ID MongoDB correspondant trouvé en cache: $mongoId")
+                apiService.delete(mongoId)
+                Log.d("OnlineUserService", "Suppression réussie sur le serveur")
+            } else {
+                // Si nous n'avons pas d'ID en cache, chercher dans tous les utilisateurs
+                Log.d("OnlineUserService", "Pas d'ID MongoDB en cache, recherche parmi tous les utilisateurs")
+                val allUsers = apiService.getAll()
+                val matchingUser = allUsers.find { it.toUser().id == id }
+
+                if (matchingUser != null) {
+                    // Utiliser l'ID MongoDB trouvé
+                    val foundMongoId = matchingUser.id
+                    Log.d("OnlineUserService", "ID MongoDB correspondant trouvé: $foundMongoId")
+                    apiService.delete(foundMongoId)
+                    Log.d("OnlineUserService", "Suppression réussie sur le serveur")
+                } else {
+                    // Dernier recours : essayer avec l'ID local
+                    Log.d("OnlineUserService", "Aucun utilisateur correspondant trouvé, tentative avec l'ID local")
+                    apiService.delete(id.toString())
+                }
+            }
         } catch (e: Exception) {
-            // If the API doesn't support deletion yet, log the error
-            e.printStackTrace()
+            // Log détaillé de l'erreur
+            Log.e("OnlineUserService", "Erreur lors de la suppression de l'utilisateur", e)
+            if (e is retrofit2.HttpException) {
+                try {
+                    val errorBody = e.response()?.errorBody()?.string()
+                    Log.e("OnlineUserService", "Corps de l'erreur: $errorBody")
+
+                    // Dans le cas où l'erreur est 404 (Not Found), on peut considérer que c'est un succès
+                    // car l'utilisateur n'existe plus sur le serveur
+                    if (e.code() == 404) {
+                        Log.d("OnlineUserService", "L'utilisateur n'existe pas sur le serveur (404), considéré comme supprimé")
+                        return@withContext
+                    }
+                } catch (e2: Exception) {
+                    // Ignorer si on ne peut pas lire le corps de l'erreur
+                }
+            }
+            throw e // Propager l'erreur pour informer l'appelant
         }
     }
 
