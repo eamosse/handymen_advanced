@@ -1,30 +1,42 @@
-# V1 : Sauvegarder les utilisateurs dans une base de données locales
-Dans ce TP, vous allez améliorer la version précédente de l'application en y ajoutant un mécanisme de sauvegarde des données dans une base de données locale. 
-Concrètement, toutes les opérations du TP précédent seront effectuées sur une base de données locales.
+# Synchroniser les utilisateurs avec une API
 
-## Concepts et notions envisagés
-- Room
-- Coroutines
-- Préférences
-- Menu
+Dans ce TP, vous allez intégrer une API permettant de synchroniser les utilisateurs avec un serveur distant.
 
-## Etape 1 : Synchroniser le projet précédent 
-- Modifier le remote du TP précédent pour le pointer vers ce repository
+## Concepts et notions
+- Retrofit
+- JSON
+- API
+- Injection de dépendances
+- Connectivité
 
-## Etape 2: Mise en place de la base de données 
-Dans cette section, vous allez ajouter les composants nécessaires permettant de gérer les utilisateurs dans une base de données SQLite. 
-- Ajouter les composants nécessaires (Entity, DAO, Database) pour gérer les utilisateurs dans une base de données SQLite, en utilisant la librairie Room
-- Ajouter une nouvelle implémentation du service afin de gérer la nouvelle source de données (i.e. base de données Room)
-- Adapter le repository pour qu'il puisse s'instancier avec l'un ou l'autre des services (memory ou base de données)
-- Ajouter un mécanisme permettant de remplir la base de données avec des données de tests
+## Partie 1 : Mise en place d'un serveur
+Pour commencer, vous allez travailler avec un serveur locale, ce qui vous permettra de l'enrichir en fonction de vos besoins.
+Pour cela, vous pouvez récupérer les sources du serveur NodeJS via le repository [https://github.com/eamosse/neighbors_api]
 
-## Etape 3: Gestion des préférences
-- Modifier la toolbar de l'application pour y ajouter un menu permettant de basculer sur le mode memory ou base de données
-- Utiliser les Préférences pour sauvegarder le choix de l'utilisateur (memory ou database). Quand l'utilisateur choisit un mode dans le menu (memory ou database), sauvegarder son choix dans les préférences afin qu'au redémarrage de l'application son choix soit sauvegardé.
+1. Forker le repository
+2. Suivre les étapes du README pour lancer le serveur
 
+## Partie 2: Intégrer l'API dans votre application
+Dans cette partie, vous allez modifier votre application pour y ajouter une troisième source de données.
 
-# Contraintes :
-- Repartir des sources du projet précédent
-- Utiliser les coroutines
-- Garder les mêmes groupes
-- Utiliser l'injection de dépendances   
+1. Reprendre les sources du TP précédent et modifier le remote pour pointer vers ce repository;
+2. Mettre en place un service permettant de communiquer avec votre serveur Node en utilisant la librairie Retrofit
+3. Configurer le repository et le menu de l'application pour prendre en compte cette 3e source
+4. Synchroniser les données locales et l'API
+
+N.B: Sentez-vous libre d'adapter les sources du serveur en fonction des besoins de votre application.
+
+## Partie 3: Rendre votre application autonome
+Dans cette partie, vous allez modifier le comportement de l'application pour qu'elle détermine automatiquement la bonne source de données à utiliser en fonction de la configuration du téléphone.
+
+1. Mettre en place un mécanisme de monitoring de la connectivité du téléphone.
+   a. Si aucune connexion internet n'est disponible (i.e. mode offline), utiliser la base de données locale
+   b. Sinon, utiliser les données de l'API
+2. Afficher une notification (dans la bare de statut du téléphone) indiquant à l'utilisateur qu'il n'a pas accès à internet et que l'application fonctionne uniquement avec des données locales
+3. Mettre en place un mécanisme de synchronisation automatique, permettant d'envoyer les données modifiées en mode offline vers les serveur quand la connection internet est rétablie
+4. Ajouter un indicateur sur la liste des utilisateurs permettant d'identifier ceux qui ne sont pas encore synchronisés avec l'API
+
+## Rendu
+- Veuiller à faire votre dernier commit avant la deadline (voir assignation)
+- Ajouter dans le README le lien vers le repo de votre serveur
+- Ajouter une section Contributeurs
