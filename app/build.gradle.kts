@@ -45,6 +45,7 @@ dependencies {
     kapt(libs.androidx.room.room.compiler)  // Changed from annotationProcessor to kapt
     implementation(libs.androidx.room.ktx)
 
+
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)
 

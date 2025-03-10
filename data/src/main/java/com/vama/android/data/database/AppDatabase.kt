@@ -11,14 +11,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-// Dans AppDatabase.kt
+
 @Database(entities = [UserEntity::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
 
     suspend fun populateWithTestData() {
         userDao().let { dao ->
-            Database_Users.forEach { user ->  // Utilisation de Database_Users au lieu de Dummy_Users
+            Database_Users.forEach { user ->
                 dao.insert(UserEntity.fromUser(user))
             }
         }

@@ -28,8 +28,6 @@ interface UserRepository {
     suspend fun toggleFavorite(id: Long)
     suspend fun getFavorites(): List<User>
     suspend fun sortBy(criteria: SortCriteria): List<User>
-
-    // New methods for data source management
     fun getCurrentDataSource(): DataSource
     fun setDataSource(source: DataSource)
     fun isSyncEnabled(): Boolean
@@ -123,11 +121,10 @@ class UserRepositoryImpl @Inject constructor(
         Log.d("UserRepository", "Suppression de l'utilisateur avec ID: $id")
 
         try {
-            // Supprimer l'utilisateur du service actuel
             currentUserService.delete(id)
             Log.d("UserRepository", "Utilisateur supprimé du service actuel")
 
-            // Si la synchronisation est activée, supprimer également de l'online storage
+
             if (dataStoreManager.isSyncEnabled() && getCurrentDataSource() != DataSource.ONLINE) {
                 try {
                     Log.d("UserRepository", "Tentative de suppression sur le serveur...")
@@ -135,15 +132,15 @@ class UserRepositoryImpl @Inject constructor(
                     Log.d("UserRepository", "Utilisateur supprimé du serveur")
                 } catch (e: Exception) {
                     Log.e("UserRepository", "Erreur lors de la suppression sur le serveur", e)
-                    // Ne pas propager cette erreur, car la suppression locale a réussi
+
                 }
             }
         } catch (e: Exception) {
             Log.e("UserRepository", "Erreur lors de la suppression", e)
             throw e
         } finally {
-            // Importante correction : Assurez-vous de rafraîchir l'interface utilisateur
-            // après la suppression, que celle-ci ait réussi ou échoué
+
+
             refreshUsers()
             Log.d("UserRepository", "Interface utilisateur rafraîchie après suppression")
         }
@@ -157,15 +154,15 @@ class UserRepositoryImpl @Inject constructor(
         return users
     }
 
-    // Dans UserRepositoryImpl, améliorer la méthode toggleFavorite
 
-    // Dans UserRepositoryImpl, méthode toggleFavorite corrigée
+
+
 
     override suspend fun toggleFavorite(id: Long) {
         Log.d("UserRepository", "Changement du statut favori pour l'utilisateur avec ID: $id")
 
         try {
-            // Obtenir l'utilisateur avant la modification
+
             val user = currentUserService.getById(id)
 
             if (user == null) {
@@ -175,11 +172,11 @@ class UserRepositoryImpl @Inject constructor(
 
             Log.d("UserRepository", "Utilisateur trouvé, statut favori actuel: ${user.favorite}")
 
-            // Changer le statut favori dans le service actuel
+
             currentUserService.toggleFavorite(id)
             Log.d("UserRepository", "Statut favori changé dans le service actuel")
 
-            // Si la synchronisation est activée, changer également sur le serveur
+
             if (dataStoreManager.isSyncEnabled() && getCurrentDataSource() != DataSource.ONLINE) {
                 try {
                     Log.d("UserRepository", "Synchronisation activée, mise à jour sur le serveur")
@@ -198,7 +195,7 @@ class UserRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Log.e("UserRepository", "Erreur lors du changement de statut favori", e)
         } finally {
-            // IMPORTANT: Rafraîchir l'interface utilisateur en s'assurant que c'est fait sur le thread principal
+
             withContext(Dispatchers.Main) {
                 try {
                     Log.d("UserRepository", "Début du rafraîchissement de l'interface utilisateur")
@@ -236,7 +233,7 @@ class UserRepositoryImpl @Inject constructor(
     override fun setSyncEnabled(enabled: Boolean) {
         dataStoreManager.setSyncEnabled(enabled)
     }
-    // Modified syncData method in UserRepositoryImpl class
+
     override suspend fun syncData() {
         Log.d("UserRepository", "Démarrage de la synchronisation")
         if (!dataStoreManager.isSyncEnabled()) {
@@ -245,7 +242,7 @@ class UserRepositoryImpl @Inject constructor(
         }
 
         try {
-            // Synchronize data based on the current source
+
             val currentSource = getCurrentDataSource()
             Log.d("UserRepository", "Source de données actuelle: $currentSource")
 
@@ -255,32 +252,7 @@ class UserRepositoryImpl @Inject constructor(
                     val success = syncLocalToOnline()
                     Log.d("UserRepository", "Résultat de la synchronisation: ${if (success) "Succès" else "Échec"}")
                 }
-//                DataSource.ONLINE -> {
-//                    Log.d("UserRepository", "Synchronisation depuis ONLINE vers local")
-//                    // Sync from online to local
-//                    val onlineUsers = onlineUserService.getAll()
-//                    Log.d("UserRepository", "Récupération de ${onlineUsers.size} utilisateurs en ligne")
-//
-//                    // Sync to memory
-//                    onlineUsers.forEach { user ->
-//                        val existingUser = memoryUserService.getById(user.id)
-//                        if (existingUser == null) {
-//                            memoryUserService.add(user)
-//                        } else {
-//                            memoryUserService.update(user)
-//                        }
-//                    }
-//
-//                    // Sync to database
-//                    onlineUsers.forEach { user ->
-//                        val existingUser = databaseUserService.getById(user.id)
-//                        if (existingUser == null) {
-//                            databaseUserService.add(user)
-//                        } else {
-//                            databaseUserService.update(user)
-//                        }
-//                    }
-//                }
+
             }
 
             refreshUsers()
@@ -291,11 +263,11 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    // Improved syncLocalToOnline method
+
     suspend fun syncLocalToOnline(): Boolean = withContext(Dispatchers.IO) {
         Log.d("UserRepository", "Début de syncLocalToOnline")
         try {
-            // 1. Récupérer toutes les données de la source locale
+
             val localUsers = when (getCurrentDataSource()) {
                 DataSource.MEMORY -> {
                     Log.d("UserRepository", "Récupération des utilisateurs depuis MEMORY")
@@ -313,13 +285,13 @@ class UserRepositoryImpl @Inject constructor(
 
             Log.d("UserRepository", "Nombre d'utilisateurs locaux: ${localUsers.size}")
 
-            // Si aucune donnée locale, rien à synchroniser
+
             if (localUsers.isEmpty()) {
                 Log.d("UserRepository", "Aucun utilisateur local, rien à synchroniser")
                 return@withContext true
             }
 
-            // 2. Ajouter tous les utilisateurs locaux à la base distante
+
             var successCount = 0
             for (localUser in localUsers) {
                 try {
@@ -329,7 +301,7 @@ class UserRepositoryImpl @Inject constructor(
                     successCount++
                 } catch (e: Exception) {
                     Log.e("UserRepository", "Erreur lors de l'ajout de l'utilisateur ${localUser.id}", e)
-                    // Continue avec les autres ajouts même si un échoue
+
                 }
             }
 

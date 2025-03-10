@@ -10,10 +10,10 @@ interface ApiService {
     @GET("handymen/{id}")
     suspend fun get(@Path("id") id: String): UserResponse
 
-    // Note: La recherche n'est pas implémentée dans le serveur, donc cette méthode ne fonctionnera pas
-    // Nous devrons faire une recherche côté client
+
+
     @GET("handymen")
-    suspend fun search(): List<UserResponse> // On récupère tous et on filtre côté client
+    suspend fun search(): List<UserResponse>
 
     @POST("handymen")
     suspend fun create(@Body handyman: UserRequest): UserResponse

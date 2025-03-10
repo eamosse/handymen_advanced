@@ -5,7 +5,7 @@ import com.vama.android.data.model.User
 import android.util.Log
 import kotlin.math.absoluteValue
 
-// Map pour stocker la correspondance entre IDs MongoDB et IDs locaux
+
 private val idMapping = mutableMapOf<String, Long>()
 
 data class UserResponse(
@@ -22,11 +22,11 @@ data class UserResponse(
         Log.d("UserResponse", "Conversion de réponse API en objet User")
         Log.d("UserResponse", "ID original: $id")
 
-        // Vérifier si nous avons déjà une correspondance pour cet ID
+
         val userId = if (idMapping.containsKey(id)) {
             idMapping[id]!!
         } else {
-            // Générer un nouvel ID local et le stocker dans la map
+
             val newId = id.hashCode().toLong().absoluteValue
             idMapping[id] = newId
             newId
@@ -47,12 +47,12 @@ data class UserResponse(
     }
 
     companion object {
-        // Méthode pour retrouver l'ID MongoDB à partir d'un ID local
+
         fun getMongoId(localId: Long): String? {
             return idMapping.entries.find { it.value == localId }?.key
         }
 
-        // Méthode pour ajouter un mapping entre ID MongoDB et ID local
+
         fun addMapping(mongoId: String, localId: Long) {
             Log.d("UserResponse", "Ajout d'un mapping: MongoDB ID $mongoId -> Local ID $localId")
             idMapping[mongoId] = localId
