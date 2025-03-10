@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.vama.android.data.di.DataModule
 import com.vama.android.data.model.User
+import com.vama.android.data.preferences.DataSource
 import com.vama.android.data.repositories.UserRepository
 import com.vama.android.handymen.utils.Event
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,22 +23,40 @@ class AddUserViewModel @Inject constructor(
     fun addUser(name: String, address: String, phone: String, aboutMe: String, website: String) {
         viewModelScope.launch {
             try {
-                // TODO UTiliser un modèle dédié pour la création d'un utilisateur (principe du single responsability)
+                // Générer une URL d'avatar unique basée sur le nom pour s'assurer que chaque utilisateur a un avatar différent
+                val avatarUrl = "https://api.dicebear.com/9.x/miniavs/png?seed=${name.hashCode()}"
+
                 val newUser = User(
-                    id = 0,
+                    id = 0, // L'ID sera généré par l'API
                     name = name,
-                    avatarUrl = "https://api.dicebear.com/9.x/miniavs/png",
+                    avatarUrl = avatarUrl,
                     address = address,
                     phoneNumber = phone,
                     aboutMe = aboutMe,
-                    favorite = true,
+                    favorite = false, // Par défaut, un nouvel utilisateur n'est pas favori
                     webSite = website
                 )
+
+                // S'assurer que le mode en ligne est activé
+                if (userRepository.getCurrentDataSource() != DataSource.ONLINE) {
+                    userRepository.setDataSource(DataSource.ONLINE)
+                }
+
+                // Activer la synchronisation si elle n'est pas encore activée
+                if (!userRepository.isSyncEnabled()) {
+                    userRepository.setSyncEnabled(true)
+                }
+
                 userRepository.add(newUser)
                 _addSuccess.value = Event(true)
             } catch (e: Exception) {
                 _addSuccess.value = Event(false)
             }
         }
+    }
+
+    // Méthode pour changer la source de données
+    fun setDataSource(source: DataSource) {
+        userRepository.setDataSource(source)
     }
 }

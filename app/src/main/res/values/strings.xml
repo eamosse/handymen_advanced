@@ -52,4 +52,7 @@
     <string name="restart_required">Please restart the application to apply changes</string>
 
 
+    <string name="adding_user">Ajout en cours...</string>
+    <string name="online_mode_active">Mode en ligne activé</string>
+    <string name="online_mode_error">Erreur de connexion au serveur</string>
 </resources>
