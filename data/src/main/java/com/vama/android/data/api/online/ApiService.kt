@@ -11,15 +11,12 @@ interface ApiService {
     @GET("handymen")
     suspend fun getAll(): List<UserResponse>
 
-    @GET("handymen/{id}") // Devient handymen/1245e7
-    suspend fun get(@Path("id") id:String): UserResponse
+    @GET("handymen/{id}")
+    suspend fun get(@retrofit2.http.Path("id") id: String): UserResponse
 
-    @GET("handymen/search")  // Devient neighbors/search?filter=query
-    suspend fun search(@Query("filter") search: String): List<UserResponse>
+    @GET("handymen/search")
+    suspend fun search(@retrofit2.http.Query("filter") search: String): List<UserResponse>
 
     @POST("handymen")
-    suspend fun create(@Body neighbor: UserRequest): UserResponse
-
-
+    suspend fun create(@retrofit2.http.Body neighbor: UserRequest): UserResponse
 }
-

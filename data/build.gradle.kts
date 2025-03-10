@@ -45,6 +45,15 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
+    implementation (libs.retrofit)
+    implementation (libs.converter.moshi)
+
+    implementation (libs.moshi)
+    implementation (libs.moshi.kotlin)
+    implementation(libs.logging.interceptor)
+    kapt (libs.moshi.kotlin.codegen)
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
