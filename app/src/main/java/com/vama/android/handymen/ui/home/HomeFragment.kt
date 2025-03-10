@@ -9,32 +9,52 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.vama.android.handymen.R
 import com.vama.android.handymen.databinding.HomeFragmentBinding
 import com.vama.android.handymen.model.UserModelView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import androidx.appcompat.widget.SearchView
-import androidx.navigation.fragment.findNavController
-
 
 @AndroidEntryPoint
-class HomeFragment : Fragment(), UserInteractionListener {
+class HomeFragment : Fragment() {
 
     private lateinit var _binding: HomeFragmentBinding
+
     private lateinit var adapter: UsersAdapter
 
     val viewModel: HomeViewModel by lazy {
         ViewModelProvider(requireActivity())[HomeViewModel::class.java]
     }
 
+
+    // TODO : Afficher un message quand il n'y a pas de données
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = HomeFragmentBinding.inflate(inflater, container, false)
-        setupRecyclerView()
+
+        // TODO A déplacer dans une méthode
+        // Initialize adapter with favorite and delete click handlers
+        adapter = UsersAdapter(
+            onFavoriteClick = { user ->
+                viewModel.toggleFavorite(user.id)
+            },
+            onDeleteClick = { user ->
+                showDeleteConfirmationDialog(user)
+            },
+            onShareClick = { user ->
+                shareUserProfile(user)
+            }
+        )
+
+        _binding.list.layoutManager = LinearLayoutManager(requireContext())
+        _binding.list.adapter = adapter
+
         return _binding.root
     }
 
@@ -43,46 +63,14 @@ class HomeFragment : Fragment(), UserInteractionListener {
 
         setupSearchView()
         setupSortSpinner()
-        observeUsersList()
-    }
-
-    private fun setupRecyclerView() {
-        adapter = UsersAdapter(this)
-        _binding.list.layoutManager = LinearLayoutManager(requireContext())
-        _binding.list.adapter = adapter
-    }
-
-    private fun observeUsersList() {
-        viewModel.filteredUsers.observe(viewLifecycleOwner) { userList ->
-            adapter.submitList(userList)
-
-            // Show empty state message when there's no data
-            if (userList.isEmpty()) {
-                _binding.emptyStateView.visibility = View.VISIBLE
-                _binding.list.visibility = View.GONE
-            } else {
-                _binding.emptyStateView.visibility = View.GONE
-                _binding.list.visibility = View.VISIBLE
+        // Observer la liste filtrée d'utilisateurs
+        // TODO Utiliser une seule lise, les deux ne seront jamais utilisées en même temps
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.filteredUsers.observe(viewLifecycleOwner) { userList ->
+                adapter.submitList(userList)
             }
+
         }
-    }
-
-    // Implémentation de l'interface UserInteractionListener
-    override fun onFavoriteClick(user: UserModelView) {
-        viewModel.toggleFavorite(user.id)
-    }
-
-    override fun onDeleteClick(user: UserModelView) {
-        showDeleteConfirmationDialog(user)
-    }
-
-    override fun onShareClick(user: UserModelView) {
-        shareUserProfile(user)
-    }
-
-    override fun onUserClick(user: UserModelView) {
-        val action = HomeFragmentDirections.actionNavigationHomeToNavigationUserDetail(user.id)
-        findNavController().navigate(action)
     }
 
     private fun setupSearchView() {
@@ -98,13 +86,15 @@ class HomeFragment : Fragment(), UserInteractionListener {
         })
     }
 
+    // TODO Pas de texts en dur dans l'app
+
     private fun setupSortSpinner() {
-        // Create sort options using string resources
+        // Create sort options
         val sortOptions = arrayOf(
-            getString(R.string.sort_name_asc),
-            getString(R.string.sort_name_desc),
-            getString(R.string.sort_date_oldest),
-            getString(R.string.sort_date_newest)
+            "Name (A-Z)",
+            "Name (Z-A)",
+            "Date Created (Oldest)",
+            "Date Created (Newest)"
         )
 
         // Create an ArrayAdapter for the spinner
@@ -141,27 +131,33 @@ class HomeFragment : Fragment(), UserInteractionListener {
             }
     }
 
+
     private fun showDeleteConfirmationDialog(user: UserModelView) {
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.delete_user_title)
             .setMessage(R.string.delete_user_message)
             .setPositiveButton(R.string.delete) { _, _ ->
+                // Call delete method in ViewModel
                 viewModel.deleteUser(user.id)
+
+                // Ajouter cette ligne pour mettre à jour les favoris
                 viewModel.loadUsers()
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
     }
 
+    // TODO Pas de texts en dur dans l'app
+
     private fun shareUserProfile(user: UserModelView) {
         val shareText = viewModel.shareUserProfile(user)
 
         val shareIntent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
-            putExtra(Intent.EXTRA_SUBJECT, getString(R.string.share_profile_subject, user.name))
+            putExtra(Intent.EXTRA_SUBJECT, "Profil de ${user.name}")
             putExtra(Intent.EXTRA_TEXT, shareText)
         }
 
-        startActivity(Intent.createChooser(shareIntent, getString(R.string.share_profile_chooser_title)))
+        startActivity(Intent.createChooser(shareIntent, "Partager le profil"))
     }
 }

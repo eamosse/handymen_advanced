@@ -27,22 +27,4 @@ interface UserDao {
 
     @Query("SELECT * FROM users WHERE favorite = 1")
     fun getFavorites(): List<UserEntity>
-
-    @Query("SELECT * FROM users ORDER BY name ASC")
-    suspend fun getUsersSortedByNameAsc(): List<UserEntity>
-
-    @Query("SELECT * FROM users ORDER BY name DESC")
-    suspend fun getUsersSortedByNameDesc(): List<UserEntity>
-
-    @Query("SELECT * FROM users ORDER BY id ASC")
-    suspend fun getUsersSortedByIdAsc(): List<UserEntity>
-
-    @Query("SELECT * FROM users ORDER BY id DESC")
-    suspend fun getUsersSortedByIdDesc(): List<UserEntity>
-
-    @Query("SELECT * FROM users WHERE favorite = 1 ORDER BY name ASC")
-    suspend fun getUsersSortedByFavorites(): List<UserEntity>
-
-    @Query("SELECT * FROM users")
-    suspend fun getUsersSortedByDistance(): List<UserEntity>
 }

@@ -41,8 +41,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.navigation.fragment.ktx.v275)
-    implementation(libs.androidx.navigation.ui.ktx.v275)
     implementation(libs.androidx.room.runtime)
     kapt(libs.androidx.room.room.compiler)  // Changed from annotationProcessor to kapt
     implementation(libs.androidx.room.ktx)
