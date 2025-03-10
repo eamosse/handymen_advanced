@@ -112,27 +112,31 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun delete(id: Long) {
         Log.d("UserRepository", "Suppression de l'utilisateur avec ID: $id")
 
-        // Supprimer l'utilisateur du service actuel
-        currentUserService.delete(id)
-        Log.d("UserRepository", "Utilisateur supprimé du service actuel")
+        try {
+            // Supprimer l'utilisateur du service actuel
+            currentUserService.delete(id)
+            Log.d("UserRepository", "Utilisateur supprimé du service actuel")
 
-        // Si la synchronisation est activée, supprimer également de l'online storage
-        if (dataStoreManager.isSyncEnabled() && getCurrentDataSource() != DataSource.ONLINE) {
-            CoroutineScope(Dispatchers.IO).launch {
+            // Si la synchronisation est activée, supprimer également de l'online storage
+            if (dataStoreManager.isSyncEnabled() && getCurrentDataSource() != DataSource.ONLINE) {
                 try {
                     Log.d("UserRepository", "Tentative de suppression sur le serveur...")
                     onlineUserService.delete(id)
                     Log.d("UserRepository", "Utilisateur supprimé du serveur")
                 } catch (e: Exception) {
                     Log.e("UserRepository", "Erreur lors de la suppression sur le serveur", e)
+                    // Ne pas propager cette erreur, car la suppression locale a réussi
                 }
             }
+        } catch (e: Exception) {
+            Log.e("UserRepository", "Erreur lors de la suppression", e)
+            throw e
+        } finally {
+            // Importante correction : Assurez-vous de rafraîchir l'interface utilisateur
+            // après la suppression, que celle-ci ait réussi ou échoué
+            refreshUsers()
+            Log.d("UserRepository", "Interface utilisateur rafraîchie après suppression")
         }
-
-        // Importante correction : Assurez-vous de rafraîchir l'interface utilisateur
-        // Cela va actualiser la liste des utilisateurs dans le LiveData
-        refreshUsers()
-        Log.d("UserRepository", "Interface utilisateur rafraîchie après suppression")
     }
 
     override suspend fun search(query: String): List<User> {

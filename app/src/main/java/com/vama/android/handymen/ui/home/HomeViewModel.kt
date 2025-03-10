@@ -63,7 +63,19 @@ class HomeViewModel @Inject constructor(
 
     fun deleteUser(userId: Long) {
         viewModelScope.launch {
-            userRepository.delete(userId)
+            try {
+                // Supprimer l'utilisateur et attendre que l'opération soit terminée
+                userRepository.delete(userId)
+
+                // Recharger la liste des utilisateurs après la suppression
+                loadUsers()
+            } catch (e: Exception) {
+                // Gérer l'erreur si nécessaire
+                e.printStackTrace()
+
+                // Recharger quand même pour s'assurer que l'UI est à jour
+                loadUsers()
+            }
         }
     }
 

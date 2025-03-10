@@ -93,6 +93,7 @@ class OnlineUserService @Inject constructor(
         }
     }
 
+
     override suspend fun delete(id: Long) = withContext(Dispatchers.IO) {
         try {
             Log.d("OnlineUserService", "Suppression de l'utilisateur avec ID: $id")

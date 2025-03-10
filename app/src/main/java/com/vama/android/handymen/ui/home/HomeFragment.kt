@@ -137,11 +137,9 @@ class HomeFragment : Fragment() {
             .setTitle(R.string.delete_user_title)
             .setMessage(R.string.delete_user_message)
             .setPositiveButton(R.string.delete) { _, _ ->
-                // Call delete method in ViewModel
+                // Appeler la méthode delete dans le ViewModel
+                // Le ViewModel s'occupera de recharger les données après la suppression
                 viewModel.deleteUser(user.id)
-
-                // Ajouter cette ligne pour mettre à jour les favoris
-                viewModel.loadUsers()
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
