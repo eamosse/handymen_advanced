@@ -4,45 +4,52 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.vama.android.data.model.User
-import com.vama.android.data.repositories.UserRepository
+import com.vama.android.handymen.domain.FavoritesUseCase
+import com.vama.android.handymen.model.UserModelView
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val favoritesUseCase: FavoritesUseCase
 ) : ViewModel() {
 
-    // TODO Obeserver le livedata du repository pour éviter de faire un refresh à chaque fois
-    private val _favorites = MutableLiveData<List<User>>()
-    val favorites: LiveData<List<User>> = _favorites
+    private val _favorites = MutableLiveData<List<UserModelView>>()
+    val favorites: LiveData<List<UserModelView>> = _favorites
 
-    init {
-        loadFavorites()
-    }
-
+    /**
+     * Charge les utilisateurs favoris à partir du use case
+     */
     fun loadFavorites() {
         viewModelScope.launch {
-            _favorites.value = userRepository.getFavorites()
+            _favorites.value = favoritesUseCase.getFavorites()
         }
     }
 
+    /**
+     * Bascule l'état favori d'un utilisateur
+     */
     fun toggleFavorite(userId: Long) {
         viewModelScope.launch {
-            userRepository.toggleFavorite(userId)
-            loadFavorites()
+            favoritesUseCase.toggleFavorite(userId)
+            loadFavorites() // Recharger après modification
         }
     }
 
+    /**
+     * Supprime un utilisateur
+     */
     fun deleteUser(userId: Long) {
         viewModelScope.launch {
-            userRepository.delete(userId)
-            loadFavorites()
+            favoritesUseCase.deleteUser(userId)
+            loadFavorites() // Recharger après suppression
         }
     }
 
+    /**
+     * Rafraîchit la liste des favoris (pour compatibilité avec l'existant)
+     */
     fun refreshFavorites() {
         loadFavorites()
     }

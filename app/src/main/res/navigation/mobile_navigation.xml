@@ -21,11 +21,29 @@
         android:id="@+id/navigation_favorites"
         android:name="com.vama.android.handymen.ui.favorites.FavoritesFragment"
         android:label="@string/title_favorites"
-        tools:layout="@layout/favorite_users_fragment" />
+        tools:layout="@layout/favorite_users_fragment">
+        <action
+            android:id="@+id/action_navigation_favorites_to_navigation_user_detail"
+            app:destination="@id/navigation_user_detail" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_settings"
         android:name="com.vama.android.handymen.ui.preferences.PreferencesFragment"
         android:label="@string/title_preferences"
         tools:layout="@layout/fragment_preferences" />
+
+    <!-- Fragment de détail utilisateur -->
+    <fragment
+        android:id="@+id/navigation_user_detail"
+        android:name="com.vama.android.handymen.ui.detail.UserDetailFragment"
+        android:label="@string/user_detail"
+        tools:layout="@layout/fragment_user_detail">
+        <argument
+            android:name="userId"
+            app:argType="long" />
+        <action
+            android:id="@+id/action_navigation_user_detail_to_navigation_edit_user"
+            app:destination="@id/navigation_user_detail" />
+    </fragment>
 </navigation>

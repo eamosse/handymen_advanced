@@ -1,17 +1,12 @@
 package com.vama.android.handymen
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.vama.android.handymen.databinding.MainActivityBinding
-import com.vama.android.handymen.ui.preferences.PreferencesFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -19,15 +14,11 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: MainActivityBinding
 
-    // TODO Adapter les icons dans la bottom navigation
-    // TODO Il manque une vue de détail pour les utilisateurs
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = MainActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        val navView: BottomNavigationView = binding.navView
 
         // Get NavController from NavHostFragment
         val navHostFragment = supportFragmentManager
@@ -37,11 +28,25 @@ class MainActivity : AppCompatActivity() {
         // Setup the bottom navigation with the NavController
         val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_favorites
+                R.id.navigation_home, R.id.navigation_favorites, R.id.navigation_preferences
             )
         )
 
         setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
+        binding.navView.setupWithNavController(navController)
+
+        // Handle up navigation for detail screens
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            supportActionBar?.setDisplayHomeAsUpEnabled(
+                destination.id == R.id.navigation_user_detail
+            )
+        }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        val navController = (supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment_activity_main) as NavHostFragment)
+            .navController
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
 }

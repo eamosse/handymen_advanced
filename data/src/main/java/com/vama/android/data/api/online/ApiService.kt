@@ -1,25 +1,65 @@
 package com.vama.android.data.api.online
 
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
-import retrofit2.http.Query
+import retrofit2.http.*
 
+/**
+ * Interface Retrofit pour les opérations API relatives aux utilisateurs
+ */
 interface ApiService {
+    /**
+     * Récupère tous les utilisateurs
+     */
+    @GET("users")
+    suspend fun getAll(): List<UserDTO>
 
-    @GET("handymen")
-    suspend fun getAll(): List<UserResponse>
+    /**
+     * Récupère un utilisateur par son ID
+     */
+    @GET("users/{id}")
+    suspend fun getById(@Path("id") id: Long): UserDTO?
 
-    @GET("handymen/{id}") // Devient handymen/1245e7
-    suspend fun get(@Path("id") id:String): UserResponse
+    /**
+     * Ajoute un nouvel utilisateur
+     */
+    @POST("users")
+    suspend fun add(@Body user: UserDTO): UserDTO
 
-    @GET("handymen/search")  // Devient neighbors/search?filter=query
-    suspend fun search(@Query("filter") search: String): List<UserResponse>
+    /**
+     * Met à jour un utilisateur existant
+     */
+    @PUT("users/{id}")
+    suspend fun update(@Path("id") id: Long, @Body user: UserDTO): UserDTO
 
-    @POST("handymen")
-    suspend fun create(@Body neighbor: UserRequest): UserResponse
+    /**
+     * Version simplifiée de la méthode update qui extrait l'ID de l'objet utilisateur
+     */
+    @PUT("users/{id}")
+    suspend fun update(@Body user: UserDTO): UserDTO {
+        return update(user.id, user)
+    }
 
+    /**
+     * Supprime un utilisateur
+     */
+    @DELETE("users/{id}")
+    suspend fun delete(@Path("id") id: Long)
 
+    /**
+     * Recherche des utilisateurs par un terme de recherche
+     */
+    @GET("users/search")
+    suspend fun search(@Query("q") query: String): List<UserDTO>
+
+    /**
+     * Bascule l'état favori d'un utilisateur
+     */
+    @POST("users/{id}/toggle-favorite")
+    suspend fun toggleFavorite(@Path("id") id: Long)
+
+    /**
+     * Récupère tous les utilisateurs favoris
+     */
+    @GET("users/favorites")
+    suspend fun getFavorites(): List<UserDTO>
 }
 

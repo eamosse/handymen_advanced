@@ -1,7 +1,6 @@
 <resources>
-    <string name="app_name">HandyMen</string>
+    <!-- Navigation -->
     <string name="title_home">Home</string>
-    <string name="title_dashboard">New</string>
     <string name="title_favorites">Favorites</string>
 
     <!--    favorite screen    -->
@@ -36,5 +35,31 @@
     <string name="delete_user">Delete user</string>
     <string name="title_preferences">Preferences</string>
 
+    <!-- Sort options -->
+    <string name="sort_name_asc">Name (A-Z)</string>
+    <string name="sort_name_desc">Name (Z-A)</string>
+    <string name="sort_date_oldest">Date Created (Oldest)</string>
+    <string name="sort_date_newest">Date Created (Newest)</string>
+
+    <!-- Empty state message -->
+    <string name="empty_state_message">No users found</string>
+
+    <!-- Share functionality -->
+    <string name="share_profile_subject">Profile of %1$s</string>
+    <string name="share_profile_chooser_title">Share profile</string>
+
+    <string name="share_user_profile_template">User Profile:
+        Name: %1$s
+        Address: %2$s
+        Phone: %3$s
+        Website: %4$s
+        About: %5$s
+    </string>
+
+    <string name="database_mode_enabled">Database mode enabled</string>
+    <string name="memory_mode_enabled">Memory mode enabled</string>
+    <string name="preferences_title">Preferences</string>
+    <string name="storage_mode_title">Storage mode</string>
+    <string name="storage_mode_description">Choose where to store user data</string>
 
 </resources>

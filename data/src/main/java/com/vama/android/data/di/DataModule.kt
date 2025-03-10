@@ -16,7 +16,11 @@ import javax.inject.Qualifier
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class UseDatabaseMode
+annotation class Database
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class InMemory
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -30,24 +34,21 @@ object DataModule {
 
     @Provides
     @Singleton
-    @UseDatabaseMode
-    fun provideUseDatabaseMode(dataStoreManager: DataStoreManager): Boolean {
-        return dataStoreManager.isDatabaseMode()
+    fun provideDataStoreManager(@ApplicationContext context: Context): DataStoreManager {
+        return DataStoreManager(context)
     }
 
-    // TODO : Avec cette approche, on ne peut pas injecter RoomUserService ou InMemoryUserService sans redemarrer l'application
-    // TODO Injecter RoomUserService et InMemoryUserService
-    // TODO Déplacer la logique de choix de l'implémentation de UserService dans UserRepositoryImpl
+    @Database
     @Provides
     @Singleton
-    fun provideUserService(
-        database: AppDatabase,
-        @UseDatabaseMode useDatabase: Boolean
-    ): UserService {
-        return if (useDatabase) {
-            RoomUserService(database)
-        } else {
-            InMemoryUserService()
-        }
+    fun provideRoomUserService(database: AppDatabase): UserService {
+        return RoomUserService(database)
+    }
+
+    @InMemory
+    @Provides
+    @Singleton
+    fun provideInMemoryUserService(): UserService {
+        return InMemoryUserService()
     }
 }

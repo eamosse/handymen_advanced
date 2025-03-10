@@ -1,10 +1,8 @@
-package com.vama.android.data.api
+package com.vama.android.data.utils
 
 enum class SortCriteria {
     NAME_ASC,
     NAME_DESC,
-    FAVORITE,
-    DISTANCE,
     DATE_ASC,
     DATE_DESC
 }

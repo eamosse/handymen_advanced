@@ -1,7 +1,9 @@
 package com.vama.android.data.api
 
 import com.vama.android.data.database.AppDatabase
-import com.vama.android.data.database.UserEntity
+import com.vama.android.data.database.toEntity
+import com.vama.android.data.database.toNewEntity
+import com.vama.android.data.database.toUser
 import com.vama.android.data.model.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -10,53 +12,57 @@ import javax.inject.Inject
 class RoomUserService @Inject constructor(
     private val database: AppDatabase
 ) : UserService {
-    private val userDao = database.userDao()
 
     override suspend fun getAll(): List<User> = withContext(Dispatchers.IO) {
-        userDao.getAll().map { it.toUser() }
+        database.userDao().getAll().map { it.toUser() }
     }
 
     override suspend fun getById(id: Long): User? = withContext(Dispatchers.IO) {
-        userDao.getById(id)?.toUser()
+        database.userDao().getById(id)?.toUser()
     }
 
     override suspend fun add(user: User): User = withContext(Dispatchers.IO) {
-        val entity = UserEntity.fromUser(user)
-        val newId = userDao.insert(entity)
-        user.copy(id = newId)
+        // Utilisation de toNewEntity pour s'assurer que l'ID est 0 et sera généré
+        val newId = database.userDao().insert(user.toNewEntity())
+        return@withContext user.copy(id = newId)
     }
 
     override suspend fun update(user: User): User = withContext(Dispatchers.IO) {
-        val entity = UserEntity.fromUser(user)
-        userDao.update(entity)
-        user
+        // Utilisation de toEntity pour préserver l'ID existant
+        database.userDao().update(user.toEntity())
+        return@withContext user
     }
 
     override suspend fun delete(id: Long) = withContext(Dispatchers.IO) {
-        userDao.delete(id)
+        database.userDao().delete(id)
     }
 
     override suspend fun search(query: String): List<User> = withContext(Dispatchers.IO) {
-        userDao.search(query).map { it.toUser() }
+        val searchTerm = "%$query%"
+        database.userDao().search(searchTerm).map { it.toUser() }
     }
 
-    override suspend fun toggleFavorite(id: Long) = withContext(Dispatchers.IO) {
-        userDao.toggleFavorite(id)
+    override suspend fun toggleFavorite(id: Long): Unit = withContext(Dispatchers.IO) {
+        val user = database.userDao().getById(id)
+        user?.let {
+            val updatedUser = it.copy(favorite = !it.favorite)
+            database.userDao().update(updatedUser)
+        }
     }
 
     override suspend fun getFavorites(): List<User> = withContext(Dispatchers.IO) {
-        userDao.getFavorites().map { it.toUser() }
+        database.userDao().getFavorites().map { it.toUser() }
     }
 
     override suspend fun sortBy(criteria: SortCriteria): List<User> = withContext(Dispatchers.IO) {
-        when (criteria) {
-            SortCriteria.NAME_ASC -> getAll().sortedBy { it.name }
-            SortCriteria.NAME_DESC -> getAll().sortedByDescending { it.name }
-            SortCriteria.FAVORITE -> getAll().sortedByDescending { it.favorite }
-            SortCriteria.DISTANCE -> getAll().sortedBy {
-                val distanceStr = it.address.split(";").getOrNull(1)?.trim()?.replace("km", "") ?: "0"
-                distanceStr.toIntOrNull() ?: 0
-            }
+        val users = when (criteria) {
+            SortCriteria.NAME_ASC -> database.userDao().getUsersSortedByNameAsc()
+            SortCriteria.NAME_DESC -> database.userDao().getUsersSortedByNameDesc()
+            SortCriteria.DATE_ASC -> database.userDao().getUsersSortedByIdAsc()
+            SortCriteria.DATE_DESC -> database.userDao().getUsersSortedByIdDesc()
+            SortCriteria.FAVORITE -> database.userDao().getUsersSortedByFavorites()
+            SortCriteria.DISTANCE -> database.userDao().getUsersSortedByDistance()
         }
+        return@withContext users.map { it.toUser() }
     }
 }

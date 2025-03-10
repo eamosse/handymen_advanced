@@ -15,12 +15,16 @@ constraintlayout = "2.2.0"
 lifecycleLivedataKtx = "2.8.7"
 lifecycleViewmodelKtx = "2.8.7"
 navigationFragmentKtx = "2.8.4"
+navigationFragmentKtxVersion = "2.7.5"
 navigationUiKtx = "2.8.4"
+navigationUiKtxVersion = "2.7.5"
 roomCommon = "2.6.1"
 sqliteKtx = "2.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-navigation-fragment-ktx-v275 = { module = "androidx.navigation:navigation-fragment-ktx", version.ref = "navigationFragmentKtxVersion" }
+androidx-navigation-ui-ktx-v275 = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationUiKtxVersion" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "androidxRoomCompiler" }
 androidx-room-room-compiler = { module = "androidx.room:room-compiler", version.ref = "androidxRoomCompiler" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "androidxRoomCompiler" }

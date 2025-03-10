@@ -1,27 +1,25 @@
 package com.vama.android.handymen.ui.home
 
+import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.vama.android.data.di.DataModule
+import com.vama.android.data.api.SortCriteria
 import com.vama.android.data.repositories.UserRepository
-import com.vama.android.handymen.domain.UsersUseCase
+import com.vama.android.handymen.R
 import com.vama.android.handymen.model.UserModelView
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val usersUseCase: UsersUseCase,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
+
     enum class SortType {
         NAME_ASC,
         NAME_DESC,
@@ -29,84 +27,97 @@ class HomeViewModel @Inject constructor(
         DATE_CREATED_DESC
     }
 
-    // TODO Ces variables sont inutiles
-    private val _users = MutableLiveData<List<UserModelView>>()
-    private val _searchQuery = MutableLiveData("")
-    private val _sortType = MutableLiveData(SortType.NAME_ASC)
     private val _filteredUsers = MediatorLiveData<List<UserModelView>>()
     val filteredUsers: LiveData<List<UserModelView>> = _filteredUsers
 
     init {
         loadUsers()
-        setupFilteredUsers()
-    }
-
-    private fun setupFilteredUsers() {
-        _filteredUsers.addSource(_users) { performFilterAndSort() }
-        _filteredUsers.addSource(_searchQuery) { performFilterAndSort() }
-        _filteredUsers.addSource(_sortType) { performFilterAndSort() }
     }
 
     fun loadUsers() {
         viewModelScope.launch {
-            usersUseCase().value?.let { newUsers ->
-                _users.value = newUsers
-            }
+            val users = userRepository.getAll().value?.map { user ->
+                UserModelView(
+                    id = user.id,
+                    name = user.name,
+                    address = user.address,
+                    phoneNumber = user.phoneNumber,
+                    webSite = user.webSite,
+                    aboutMe = user.aboutMe,
+                    favorite = user.favorite,
+                    avatarUrl = ""
+                )
+            } ?: emptyList()
+
+            _filteredUsers.value = users
         }
     }
 
     fun toggleFavorite(userId: Long) {
         viewModelScope.launch {
             userRepository.toggleFavorite(userId)
+            loadUsers()
         }
     }
 
     fun deleteUser(userId: Long) {
         viewModelScope.launch {
             userRepository.delete(userId)
+            loadUsers()
         }
     }
 
     fun updateSearchQuery(query: String) {
-        _searchQuery.value = query
+        viewModelScope.launch {
+            val users = userRepository.search(query).map { user ->
+                UserModelView(
+                    id = user.id,
+                    name = user.name,
+                    address = user.address,
+                    phoneNumber = user.phoneNumber,
+                    webSite = user.webSite,
+                    aboutMe = user.aboutMe,
+                    favorite = user.favorite,
+                    avatarUrl = ""
+                )
+            }
+            _filteredUsers.value = users
+        }
     }
 
     fun updateSortType(sortType: SortType) {
-        _sortType.value = sortType
+        viewModelScope.launch {
+            val criteria = when (sortType) {
+                SortType.NAME_ASC -> SortCriteria.NAME_ASC
+                SortType.NAME_DESC -> SortCriteria.NAME_DESC
+                SortType.DATE_CREATED_ASC -> SortCriteria.DATE_ASC
+                SortType.DATE_CREATED_DESC -> SortCriteria.DATE_DESC
+            }
+
+            val users = userRepository.sortBy(criteria).map { user ->
+                UserModelView(
+                    id = user.id,
+                    name = user.name,
+                    address = user.address,
+                    phoneNumber = user.phoneNumber,
+                    webSite = user.webSite,
+                    aboutMe = user.aboutMe,
+                    favorite = user.favorite,
+                    avatarUrl = ""
+                )
+            }
+            _filteredUsers.value = users
+        }
     }
 
-    // TODO : Les sources de données devront appliquer les filtres
-    private fun performFilterAndSort() {
-        val currentUsers = _users.value ?: return
-        val currentQuery = _searchQuery.value ?: ""
-        val currentSortType = _sortType.value ?: SortType.NAME_ASC
-
-        val filteredList = currentUsers.filter { user ->
-            currentQuery.isEmpty() ||
-                    user.name.contains(currentQuery, ignoreCase = true) ||
-                    user.phoneNumber.contains(currentQuery, ignoreCase = true) ||
-                    user.address.contains(currentQuery, ignoreCase = true)
-        }
-
-        val sortedList = when (currentSortType) {
-            SortType.NAME_ASC -> filteredList.sortedBy { it.name }
-            SortType.NAME_DESC -> filteredList.sortedByDescending { it.name }
-            SortType.DATE_CREATED_ASC -> filteredList.sortedBy { it.id }
-            SortType.DATE_CREATED_DESC -> filteredList.sortedByDescending { it.id }
-        }
-
-        _filteredUsers.value = sortedList
-    }
-
-    // TODO : Le text doit être traduit en fonction de la langue du téléphone
     fun shareUserProfile(user: UserModelView): String {
-        return """
-            Profil Utilisateur:
-            Nom: ${user.name}
-            Adresse: ${user.address}
-            Téléphone: ${user.phoneNumber}
-            Site Web: ${user.webSite}
-            À propos: ${user.aboutMe}
-        """.trimIndent()
+        return context.getString(
+            R.string.share_user_profile_template,
+            user.name,
+            user.address,
+            user.phoneNumber,
+            user.webSite,
+            user.aboutMe
+        )
     }
 }

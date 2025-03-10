@@ -12,18 +12,15 @@ import com.vama.android.handymen.model.UserModelView
 import coil.load
 import coil.transform.CircleCropTransformation
 
-// TODO Utiliser une interface de préférence
 class UsersAdapter(
-    private val onFavoriteClick: (UserModelView) -> Unit,
-    private val onDeleteClick: (UserModelView) -> Unit,
-    private val onShareClick: (UserModelView) -> Unit
+    private val listener: UserInteractionListener
 ) : RecyclerView.Adapter<UserViewHolder>() {
     private val mDiffer: AsyncListDiffer<UserModelView> = AsyncListDiffer(this, DiffCallback)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
         val inflater: LayoutInflater = LayoutInflater.from(parent.context)
         val binding: UserItemBinding = UserItemBinding.inflate(inflater, parent, false)
-        return UserViewHolder(binding, onFavoriteClick, onDeleteClick, onShareClick)
+        return UserViewHolder(binding, listener)
     }
 
     override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
@@ -57,27 +54,29 @@ class UsersAdapter(
 
 class UserViewHolder(
     private val binding: UserItemBinding,
-    private val onFavoriteClick: (UserModelView) -> Unit,
-    private val onDeleteClick: (UserModelView) -> Unit,
-    private val onShareClick: (UserModelView) -> Unit
+    private val listener: UserInteractionListener
 ) : RecyclerView.ViewHolder(binding.root) {
     private var currentUser: UserModelView? = null
 
     init {
         // Setup favorite icon click listener
         binding.favorite.setOnClickListener {
-            currentUser?.let { user -> onFavoriteClick(user) }
+            currentUser?.let { user -> listener.onFavoriteClick(user) }
         }
 
         // Setup delete icon click listener
         binding.delete.setOnClickListener {
-            currentUser?.let { user -> onDeleteClick(user) }
+            currentUser?.let { user -> listener.onDeleteClick(user) }
         }
 
-        // Ajout de l'icône de partage
-        val shareIcon = binding.root.findViewById<ImageView>(R.id.share)
-        shareIcon.setOnClickListener {
-            currentUser?.let { user -> onShareClick(user) }
+        // Setup share icon click listener
+        binding.root.findViewById<ImageView>(R.id.share).setOnClickListener {
+            currentUser?.let { user -> listener.onShareClick(user) }
+        }
+
+        // Setup item click listener for navigation to detail
+        binding.root.setOnClickListener {
+            currentUser?.let { user -> listener.onUserClick(user) }
         }
     }
 
