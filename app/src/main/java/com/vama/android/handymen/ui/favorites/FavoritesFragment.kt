@@ -3,14 +3,14 @@ package com.vama.android.handymen.ui.favorites
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.vama.android.handymen.R
 import com.vama.android.handymen.databinding.FavoriteUsersFragmentBinding
@@ -18,6 +18,7 @@ import com.vama.android.handymen.model.UserModelView
 import com.vama.android.handymen.ui.home.HomeViewModel
 import com.vama.android.handymen.ui.home.UsersAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class FavoritesFragment : Fragment() {
@@ -46,21 +47,27 @@ class FavoritesFragment : Fragment() {
 
         setupRecyclerView()
         observeFavorites()
+    }
 
-
+    override fun onResume() {
+        super.onResume()
+        // Rafraîchir les favoris à chaque fois que le fragment devient visible
+        Log.d("FavoritesFragment", "onResume: Rafraîchissement des favoris")
+        viewModel.refreshFavorites()
     }
 
     private fun setupRecyclerView() {
         adapter = UsersAdapter(
             onFavoriteClick = { user ->
+                Log.d("FavoritesFragment", "Clic sur favori pour l'utilisateur: ${user.id}")
                 // Toggle favorite
                 viewModel.toggleFavorite(user.id)
 
+                // Important: notifier le HomeViewModel des changements
                 homeViewModel.loadUsers()
             },
             onDeleteClick = { user ->
                 showDeleteConfirmationDialog(user)
-                homeViewModel.loadUsers()
             },
             onShareClick = { user ->
                 shareUserProfile(user)
@@ -82,50 +89,62 @@ class FavoritesFragment : Fragment() {
             putExtra(Intent.EXTRA_TEXT, shareText)
         }
 
-        // TODO Pas de texts en dur dans l'application
         startActivity(Intent.createChooser(shareIntent, "Partager le profil"))
     }
 
     private fun observeFavorites() {
-        viewModel.refreshFavorites()
-        viewModel.favorites.observe(viewLifecycleOwner) { favorites ->
-            // Convert User to UserModelView if necessary
-            // TODO Les transformations de données de font généralement dans les use cases
-            // TODO Aucune logique métier dans les vues
-            val favoriteModelViews = favorites.map { user ->
-                com.vama.android.handymen.model.UserModelView(
-                    id = user.id,
-                    name = user.name,
-                    address = user.address,
-                    phoneNumber = user.phoneNumber,
-                    webSite = user.webSite,
-                    aboutMe = user.aboutMe,
-                    favorite = user.favorite,
-                    avatarUrl = user.avatarUrl
-                )
+        // Utiliser viewLifecycleOwner pour éviter les fuites de mémoire
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.favorites.observe(viewLifecycleOwner) { favorites ->
+                Log.d("FavoritesFragment", "Mise à jour reçue: ${favorites.size} favoris")
+
+                // Convert User to UserModelView
+                val favoriteModelViews = favorites.map { user ->
+                    UserModelView(
+                        id = user.id,
+                        name = user.name,
+                        address = user.address,
+                        phoneNumber = user.phoneNumber,
+                        webSite = user.webSite,
+                        aboutMe = user.aboutMe,
+                        favorite = user.favorite,
+                        avatarUrl = user.avatarUrl
+                    )
+                }
+
+                // Utiliser ArrayList pour forcer la détection de changements
+                adapter.submitList(ArrayList(favoriteModelViews))
+
+                // Mettre à jour la visibilité
+                updateVisibility(favorites.isEmpty())
             }
-
-            adapter.submitList(favoriteModelViews)
-
-            binding.emptyView.visibility = if (favorites.isEmpty()) View.VISIBLE else View.GONE
-            binding.favoritesRecyclerView.visibility = if (favorites.isEmpty()) View.GONE else View.VISIBLE
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun updateVisibility(isEmpty: Boolean) {
+        binding.emptyView.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.favoritesRecyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
+
     private fun showDeleteConfirmationDialog(user: UserModelView) {
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.delete_user_title)
             .setMessage(R.string.delete_user_message)
             .setPositiveButton(R.string.delete) { _, _ ->
+                Log.d("FavoritesFragment", "Suppression de l'utilisateur: ${user.id}")
+
                 // Call delete method in ViewModel
                 viewModel.deleteUser(user.id)
-                homeViewModel.loadUsers() // si besoin
+
+                // Important: notifier le HomeViewModel des changements
+                homeViewModel.loadUsers()
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
