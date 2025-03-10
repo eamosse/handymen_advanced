@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Basé sur l’icône “favorite_border” des Material Icons -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M12.1,8.3l-0.1,0.1l-0.1,-0.1C10.14,6.36 7.1,6.36 5.14,8.32
+                          c-1.94,1.94-1.94,5 0,6.96l6.36,6.36l6.36,-6.36c1.94,-1.96 1.94,-5.02 0,-6.96
+                          c-1.96,-1.96-5,-1.96-6.76,0.02zM12,17.77l-5.18,-5.18
+                          c-1.19,-1.19-1.19,-3.12 0,-4.31c1.18,-1.19 3.13,-1.19 4.31,0l0.87,0.87
+                          l0.87,-0.87c1.18,-1.19 3.13,-1.19 4.31,0c1.19,1.19 1.19,3.12 0,4.31L12,17.77z"/>
+</vector>

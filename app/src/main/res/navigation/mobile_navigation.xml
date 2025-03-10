@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.vama.android.handymen.ui.home.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/home_fragment" />
+
+    <fragment
+        android:id="@+id/navigation_dashboard"
+        android:name="com.vama.android.handymen.ui.add.AddUserFragment"
+        android:label="@string/title_dashboard"
+        tools:layout="@layout/add_user_fragment" />
+
+    <fragment
+        android:id="@+id/navigation_favorites"
+        android:name="com.vama.android.handymen.ui.favorites.FavoritesFragment"
+        android:label="@string/title_favorites"
+        tools:layout="@layout/favorite_users_fragment" />
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.vama.android.handymen.ui.preferences.PreferencesFragment"
+        android:label="@string/title_preferences"
+        tools:layout="@layout/fragment_preferences" />
+</navigation>
