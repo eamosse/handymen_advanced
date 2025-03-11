@@ -18,6 +18,7 @@ import com.vama.android.handymen.model.UserModelView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import androidx.appcompat.widget.SearchView
+import com.vama.android.handymen.extensions.handle
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -40,8 +41,7 @@ class HomeFragment : Fragment() {
         // Initialize adapter with favorite and delete click handlers
         adapter = UsersAdapter(
             onFavoriteClick = { user ->
-                Log.d("HomeFragment", "Clic sur favori pour l'utilisateur: ${user.id}")
-                viewModel.toggleFavorite(user.id)
+                viewModel.toggleFavorite(user.id, user.favorite.not())
             },
             onDeleteClick = { user ->
                 showDeleteConfirmationDialog(user)
@@ -66,8 +66,9 @@ class HomeFragment : Fragment() {
         // Observer la liste filtrée d'utilisateurs
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.filteredUsers.observe(viewLifecycleOwner) { userList ->
-                Log.d("HomeFragment", "Mise à jour de la liste: ${userList.size} utilisateurs")
-                adapter.submitList(userList)
+                this@HomeFragment.handle(userList) {
+                    adapter.submitList(it)
+                }
             }
         }
     }

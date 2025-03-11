@@ -2,6 +2,7 @@ package com.vama.android.data.preferences
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.vama.android.data.utils.DataSource
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,7 +19,7 @@ class DataStoreManager @Inject constructor(
     }
 
     fun getDataSource(): DataSource {
-        val sourceOrdinal = prefs.getInt(PREF_DATA_SOURCE_KEY, DataSource.MEMORY.ordinal)
+        val sourceOrdinal = prefs.getInt(PREF_DATA_SOURCE_KEY, DataSource.DATABASE.ordinal)
         return DataSource.entries[sourceOrdinal]
     }
 
@@ -30,9 +31,6 @@ class DataStoreManager @Inject constructor(
         return getDataSource() == DataSource.DATABASE
     }
 
-    fun setDatabaseMode(isEnabled: Boolean) {
-        setDataSource(if (isEnabled) DataSource.DATABASE else DataSource.MEMORY)
-    }
 
     fun isOnlineMode(): Boolean {
         return getDataSource() == DataSource.ONLINE

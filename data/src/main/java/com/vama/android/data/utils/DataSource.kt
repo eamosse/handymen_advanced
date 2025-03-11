@@ -1,7 +1,6 @@
-package com.vama.android.data.preferences
+package com.vama.android.data.utils
 
 enum class DataSource {
-    MEMORY,
     DATABASE,
     ONLINE
 }

@@ -1,13 +1,11 @@
 package com.vama.android.data.di
 
 import android.content.Context
-import com.vama.android.data.api.InMemoryUserService
-import com.vama.android.data.api.OnlineUserService
-import com.vama.android.data.api.RoomUserService
-import com.vama.android.data.api.UserService
-import com.vama.android.data.api.online.ApiService
+import com.vama.android.data.database.RoomUserService
+import com.vama.android.data.services.UserService
+import com.vama.android.data.online.api.ApiService
 import com.vama.android.data.database.AppDatabase
-import com.vama.android.data.preferences.DataSource
+import com.vama.android.data.utils.DataSource
 import com.vama.android.data.preferences.DataStoreManager
 import dagger.Module
 import dagger.Provides
@@ -39,12 +37,6 @@ object DataModule {
         return AppDatabase.getDatabase(context)
     }
 
-    @Provides
-    @Singleton
-    @MemoryUserService
-    fun provideInMemoryUserService(): UserService {
-        return InMemoryUserService()
-    }
 
     @Provides
     @Singleton
@@ -57,19 +49,17 @@ object DataModule {
     @Singleton
     @RemoteUserService
     fun provideOnlineUserService(apiService: ApiService): UserService {
-        return com.vama.android.data.api.OnlineUserService(apiService)
+        return com.vama.android.data.online.OnlineUserService(apiService)
     }
 
     @Provides
     @Singleton
     fun provideUserService(
         dataStoreManager: DataStoreManager,
-        @MemoryUserService memoryService: UserService,
         @DatabaseUserService databaseService: UserService,
         @RemoteUserService onlineService: UserService
     ): UserService {
         return when (dataStoreManager.getDataSource()) {
-            DataSource.MEMORY -> memoryService
             DataSource.DATABASE -> databaseService
             DataSource.ONLINE -> onlineService
         }

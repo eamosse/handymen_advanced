@@ -5,21 +5,21 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.vama.android.data.database.mappers.toEntity
 import com.vama.android.data.utils.Database_Users
-import com.vama.android.data.utils.Dummy_Users
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-@Database(entities = [UserEntity::class], version = 1)
+@Database(entities = [UserEntity::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
 
-    suspend fun populateWithTestData() {
+    fun populateWithTestData() {
         userDao().let { dao ->
             Database_Users.forEach { user ->
-                dao.insert(UserEntity.fromUser(user))
+                dao.insert(user.toEntity())
             }
         }
     }
@@ -34,8 +34,8 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "handymen_database"
-                )
-                    .addCallback(object : RoomDatabase.Callback() {
+                ).fallbackToDestructiveMigration()
+                    .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
                             INSTANCE?.let { database ->

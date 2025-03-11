@@ -3,15 +3,17 @@ package com.vama.android.data.repositories
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.vama.android.data.api.SortCriteria
-import com.vama.android.data.api.UserService
-import com.vama.android.data.api.online.UserRequest
+import com.vama.android.data.model.SortCriteria
+import com.vama.android.data.services.UserService
 import com.vama.android.data.di.DatabaseUserService
 import com.vama.android.data.di.MemoryUserService
 import com.vama.android.data.di.RemoteUserService
+import com.vama.android.data.model.AddUser
+import com.vama.android.data.model.Identity
 import com.vama.android.data.model.User
-import com.vama.android.data.preferences.DataSource
+import com.vama.android.data.utils.DataSource
 import com.vama.android.data.preferences.DataStoreManager
+import com.vama.android.data.utils.DataResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,15 +21,16 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 interface UserRepository {
-    suspend fun getAll(): LiveData<List<User>>
-    suspend fun getById(id: Long): User?
-    suspend fun add(user: User): User
-    suspend fun update(user: User): User
-    suspend fun delete(id: Long)
-    suspend fun search(query: String): List<User>
-    suspend fun toggleFavorite(id: Long)
-    suspend fun getFavorites(): List<User>
-    suspend fun sortBy(criteria: SortCriteria): List<User>
+    val users: LiveData<DataResult<List<User>>>
+    suspend fun getAll()
+    suspend fun getById(id: Identity): DataResult<User>
+    suspend fun add(user: AddUser): DataResult<User>
+    suspend fun update(user: User): DataResult<User>
+    suspend fun delete(id: Identity): DataResult<Unit>
+    suspend fun search(query: String): DataResult<List<User>>
+    suspend fun toggleFavorite(id: Identity, toggle: Boolean): DataResult<Unit>
+    suspend fun getFavorites(): DataResult<List<User>>
+    suspend fun sortBy(criteria: SortCriteria): DataResult<List<User>>
     fun getCurrentDataSource(): DataSource
     fun setDataSource(source: DataSource)
     fun isSyncEnabled(): Boolean
@@ -38,27 +41,30 @@ interface UserRepository {
 
 class UserRepositoryImpl @Inject constructor(
     private val currentUserService: UserService,
-    @MemoryUserService private val memoryUserService: UserService,
     @DatabaseUserService private val databaseUserService: UserService,
     @RemoteUserService private val onlineUserService: UserService,
     private val dataStoreManager: DataStoreManager
 ) : UserRepository {
-    private val _users = MutableLiveData<List<User>>()
+    private val _users = MutableLiveData<DataResult<List<User>>>()
+    override val users: LiveData<DataResult<List<User>>>
+        get() = _users
+
     private var lastSortCriteria: SortCriteria? = null
     private var lastSearchQuery: String? = null
 
     private suspend fun refreshUsers() {
         Log.d("UserRepository", "Rafraîchissement des utilisateurs en cours...")
-
         val users = when {
             lastSearchQuery != null -> {
                 Log.d("UserRepository", "Applique le filtre de recherche: $lastSearchQuery")
                 currentUserService.search(lastSearchQuery!!)
             }
+
             lastSortCriteria != null -> {
                 Log.d("UserRepository", "Applique le tri: $lastSortCriteria")
                 currentUserService.sortBy(lastSortCriteria!!)
             }
+
             else -> {
                 Log.d("UserRepository", "Récupère tous les utilisateurs")
                 currentUserService.getAll()
@@ -67,28 +73,26 @@ class UserRepositoryImpl @Inject constructor(
 
         // Important: Mettre à jour la valeur sur le thread principal pour notifier les observateurs
         withContext(Dispatchers.Main) {
-            Log.d("UserRepository", "Mise à jour de la LiveData avec ${users.size} utilisateurs")
             _users.value = users
         }
     }
 
-    override suspend fun getAll(): LiveData<List<User>> {
+    override suspend fun getAll() {
         lastSearchQuery = null
         lastSortCriteria = null
         refreshUsers()
-        return _users
     }
 
-    override suspend fun getById(id: Long): User? = currentUserService.getById(id)
+    override suspend fun getById(id: Identity): DataResult<User> = currentUserService.getById(id)
 
-    override suspend fun add(user: User): User {
+    override suspend fun add(user: AddUser): DataResult<User> {
         val addedUser = currentUserService.add(user)
 
         // If sync is enabled, add to online storage as well
         if (dataStoreManager.isSyncEnabled() && getCurrentDataSource() != DataSource.ONLINE) {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    onlineUserService.add(addedUser)
+                    onlineUserService.add(user)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -99,54 +103,30 @@ class UserRepositoryImpl @Inject constructor(
         return addedUser
     }
 
-    override suspend fun update(user: User): User {
+    override suspend fun update(user: User): DataResult<User> {
         val updatedUser = currentUserService.update(user)
 
         // If sync is enabled, update online storage as well
         if (dataStoreManager.isSyncEnabled() && getCurrentDataSource() != DataSource.ONLINE) {
             CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    onlineUserService.update(updatedUser)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+                onlineUserService.update(user)
             }
         }
-
         refreshUsers()
         return updatedUser
     }
 
-    override suspend fun delete(id: Long) {
+    override suspend fun delete(id: Identity): DataResult<Unit> {
         Log.d("UserRepository", "Suppression de l'utilisateur avec ID: $id")
-
-        try {
-            currentUserService.delete(id)
-            Log.d("UserRepository", "Utilisateur supprimé du service actuel")
-
-
-            if (dataStoreManager.isSyncEnabled() && getCurrentDataSource() != DataSource.ONLINE) {
-                try {
-                    Log.d("UserRepository", "Tentative de suppression sur le serveur...")
-                    onlineUserService.delete(id)
-                    Log.d("UserRepository", "Utilisateur supprimé du serveur")
-                } catch (e: Exception) {
-                    Log.e("UserRepository", "Erreur lors de la suppression sur le serveur", e)
-
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("UserRepository", "Erreur lors de la suppression", e)
-            throw e
-        } finally {
-
-
-            refreshUsers()
-            Log.d("UserRepository", "Interface utilisateur rafraîchie après suppression")
+        currentUserService.delete(id)
+        if (dataStoreManager.isSyncEnabled() && getCurrentDataSource() != DataSource.ONLINE) {
+            return onlineUserService.delete(id)
         }
+        refreshUsers()
+        return DataResult.Success(Unit)
     }
 
-    override suspend fun search(query: String): List<User> {
+    override suspend fun search(query: String): DataResult<List<User>> {
         lastSearchQuery = query
         lastSortCriteria = null
         val users = currentUserService.search(query)
@@ -155,62 +135,20 @@ class UserRepositoryImpl @Inject constructor(
     }
 
 
-
-
-
-    override suspend fun toggleFavorite(id: Long) {
+    override suspend fun toggleFavorite(id: Identity, toggle: Boolean): DataResult<Unit> {
         Log.d("UserRepository", "Changement du statut favori pour l'utilisateur avec ID: $id")
-
-        try {
-
-            val user = currentUserService.getById(id)
-
-            if (user == null) {
-                Log.e("UserRepository", "Utilisateur non trouvé avec ID: $id")
-                return
-            }
-
-            Log.d("UserRepository", "Utilisateur trouvé, statut favori actuel: ${user.favorite}")
-
-
-            currentUserService.toggleFavorite(id)
-            Log.d("UserRepository", "Statut favori changé dans le service actuel")
-
-
-            if (dataStoreManager.isSyncEnabled() && getCurrentDataSource() != DataSource.ONLINE) {
-                try {
-                    Log.d("UserRepository", "Synchronisation activée, mise à jour sur le serveur")
-                    withContext(Dispatchers.IO) {
-                        try {
-                            onlineUserService.toggleFavorite(id)
-                            Log.d("UserRepository", "Statut favori changé sur le serveur avec succès")
-                        } catch (e: Exception) {
-                            Log.e("UserRepository", "Erreur lors de la mise à jour sur le serveur", e)
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.e("UserRepository", "Erreur lors de la mise à jour sur le serveur", e)
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("UserRepository", "Erreur lors du changement de statut favori", e)
-        } finally {
-
-            withContext(Dispatchers.Main) {
-                try {
-                    Log.d("UserRepository", "Début du rafraîchissement de l'interface utilisateur")
-                    refreshUsers()
-                    Log.d("UserRepository", "Interface utilisateur rafraîchie après changement de statut favori")
-                } catch (e: Exception) {
-                    Log.e("UserRepository", "Erreur lors du rafraîchissement de l'interface utilisateur", e)
-                }
-            }
+        currentUserService.toggleFavorite(id, toggle)
+        if (dataStoreManager.isSyncEnabled() && getCurrentDataSource() != DataSource.ONLINE) {
+            // TODO handle error
+            onlineUserService.toggleFavorite(id, toggle)
         }
+        refreshUsers()
+        return DataResult.Success(Unit)
     }
 
-    override suspend fun getFavorites(): List<User> = currentUserService.getFavorites()
+    override suspend fun getFavorites(): DataResult<List<User>> = currentUserService.getFavorites()
 
-    override suspend fun sortBy(criteria: SortCriteria): List<User> {
+    override suspend fun sortBy(criteria: SortCriteria): DataResult<List<User>> {
         lastSortCriteria = criteria
         lastSearchQuery = null
         val users = currentUserService.sortBy(criteria)
@@ -240,76 +178,36 @@ class UserRepositoryImpl @Inject constructor(
             Log.d("UserRepository", "Synchronisation désactivée")
             return
         }
+        syncLocalToOnline()
+        refreshUsers()
+    }
 
-        try {
-
-            val currentSource = getCurrentDataSource()
-            Log.d("UserRepository", "Source de données actuelle: $currentSource")
-
-            when (currentSource) {
-                DataSource.MEMORY, DataSource.DATABASE, DataSource.ONLINE -> {
-                    Log.d("UserRepository", "Synchronisation de ${currentSource.name} vers ONLINE")
-                    val success = syncLocalToOnline()
-                    Log.d("UserRepository", "Résultat de la synchronisation: ${if (success) "Succès" else "Échec"}")
-                }
-
-            }
-
-            refreshUsers()
-            Log.d("UserRepository", "Synchronisation terminée avec succès")
-        } catch (e: Exception) {
-            Log.e("UserRepository", "Erreur lors de la synchronisation", e)
-            throw e
+    suspend fun <T : Any> DataResult<T>.doOnSuccess(action: suspend (T) -> Unit): DataResult<T> {
+        if (this is DataResult.Success) {
+            action(data)
         }
+        return this
     }
 
 
-    suspend fun syncLocalToOnline(): Boolean = withContext(Dispatchers.IO) {
+    private suspend fun syncLocalToOnline(): Boolean = withContext(Dispatchers.IO) {
         Log.d("UserRepository", "Début de syncLocalToOnline")
-        try {
-
-            val localUsers = when (getCurrentDataSource()) {
-                DataSource.MEMORY -> {
-                    Log.d("UserRepository", "Récupération des utilisateurs depuis MEMORY")
-                    memoryUserService.getAll()
-                }
-                DataSource.DATABASE -> {
-                    Log.d("UserRepository", "Récupération des utilisateurs depuis DATABASE")
-                    databaseUserService.getAll()
-                }
-                DataSource.ONLINE -> {
-                    Log.d("UserRepository", "Déjà en mode ONLINE, rien à synchroniser")
-                    return@withContext true
-                }
+        val localUsers = when (getCurrentDataSource()) {
+            DataSource.DATABASE -> {
+                Log.d("UserRepository", "Récupération des utilisateurs depuis DATABASE")
+                databaseUserService.getAll()
             }
 
-            Log.d("UserRepository", "Nombre d'utilisateurs locaux: ${localUsers.size}")
-
-
-            if (localUsers.isEmpty()) {
-                Log.d("UserRepository", "Aucun utilisateur local, rien à synchroniser")
+            DataSource.ONLINE -> {
+                Log.d("UserRepository", "Déjà en mode ONLINE, rien à synchroniser")
                 return@withContext true
             }
-
-
-            var successCount = 0
-            for (localUser in localUsers) {
-                try {
-                    Log.d("UserRepository", "Ajout de l'utilisateur ${localUser.name} (ID: ${localUser.id}) à la base distante")
-                    val addedUser = onlineUserService.add(localUser)
-                    Log.d("UserRepository", "Utilisateur ajouté avec succès, nouvel ID: ${addedUser.id}")
-                    successCount++
-                } catch (e: Exception) {
-                    Log.e("UserRepository", "Erreur lors de l'ajout de l'utilisateur ${localUser.id}", e)
-
-                }
-            }
-
-            Log.d("UserRepository", "Synchronisation terminée. $successCount/${localUsers.size} utilisateurs synchronisés")
-            return@withContext successCount > 0
-        } catch (e: Exception) {
-            Log.e("UserRepository", "Erreur lors de la synchronisation", e)
-            return@withContext false
         }
+
+        localUsers.doOnSuccess {
+            Log.d("UserRepository", "Récupération de ${it.size} utilisateurs locaux")
+            onlineUserService.sync(it)
+        }
+        return@withContext true
     }
 }

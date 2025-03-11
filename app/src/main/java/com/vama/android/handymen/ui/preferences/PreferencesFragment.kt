@@ -12,7 +12,7 @@ import android.widget.Toast
 import androidx.appcompat.widget.SwitchCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.vama.android.data.preferences.DataSource
+import com.vama.android.data.utils.DataSource
 import com.vama.android.data.preferences.DataStoreManager
 import com.vama.android.data.repositories.UserRepository
 import com.vama.android.handymen.R
@@ -67,7 +67,6 @@ class PreferencesFragment : Fragment() {
     private fun setupInitialState() {
         val currentSource = userRepository.getCurrentDataSource()
         when (currentSource) {
-            DataSource.MEMORY -> radioMemory.isChecked = true
             DataSource.DATABASE -> radioDatabase.isChecked = true
             DataSource.ONLINE -> radioOnline.isChecked = true
         }
@@ -80,10 +79,9 @@ class PreferencesFragment : Fragment() {
         radioGroup.setOnCheckedChangeListener { _, checkedId ->
             val previousSource = userRepository.getCurrentDataSource()
             val newSource = when (checkedId) {
-                R.id.radio_memory -> DataSource.MEMORY
                 R.id.radio_database -> DataSource.DATABASE
                 R.id.radio_online -> DataSource.ONLINE
-                else -> DataSource.MEMORY
+                else -> DataSource.ONLINE
             }
 
             if (previousSource != newSource) {

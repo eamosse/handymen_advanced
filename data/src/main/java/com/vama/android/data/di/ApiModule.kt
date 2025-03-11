@@ -2,7 +2,7 @@ package com.vama.android.data.di
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import com.vama.android.data.api.online.ApiService
+import com.vama.android.data.online.api.ApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

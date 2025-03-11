@@ -1,8 +1,7 @@
 package com.vama.android.data
 
-import com.vama.android.data.api.InMemoryUserService
-import com.vama.android.data.api.SortCriteria
-import com.vama.android.data.api.UserService
+import com.vama.android.data.model.SortCriteria
+import com.vama.android.data.services.UserService
 import com.vama.android.data.model.User
 import com.vama.android.data.repositories.UserRepositoryImpl
 import kotlinx.coroutines.runBlocking

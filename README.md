@@ -1,42 +1,44 @@
-# Synchroniser les utilisateurs avec une API
+# Projet final
+Dans ce projet,  vous allez enrichir l'application en y ajoutant de nouvelles fonctionnalités.
 
-Dans ce TP, vous allez intégrer une API permettant de synchroniser les utilisateurs avec un serveur distant.
+## Etape 1 : Gestion d'addresses
+Ajouter un mécanisme de gestion d'adresses dans le profile des utilisateurs. Pour cela, vous pouvez utiliser deux approches :
+- Geocoding : Récupérer l'addresse à partir de la position de l'utilisateur
+- Reverse Geocoding : Récupérer la position GPS à partir d'une addresse saisie manuellement
+  Vous pouvez utiliser les apis Google Places pour le geoding et le reverse geocoding.
 
-## Concepts et notions
-- Retrofit
-- JSON
-- API
-- Injection de dépendances
-- Connectivité
+## Etape 2: Ajouter une vue cartagraphique (eg. Google Maps)
+- Ajouter une vue permettant de visualiser les utilisateurs sur une carte.
+- Utiliser le mécanisme clustering pour grouper les points en fonction du niveau de zoom sur la carte.
+- Afficher les détails d'une utilisateur quand on clique sur un pin de la carte
 
-## Partie 1 : Mise en place d'un serveur
-Pour commencer, vous allez travailler avec un serveur locale, ce qui vous permettra de l'enrichir en fonction de vos besoins.
-Pour cela, vous pouvez récupérer les sources du serveur NodeJS via le repository [https://github.com/eamosse/neighbors_api]
+## Etape 3: Gestion des photos
+- Permettre de prendre une ou plusieurs photos qui seront associées aux profils des utilisateurs
+- Synchroniser les photos avec l'API
+- Modifier la vue de détail des utilisateurs pour y ajouter une gallerie photo
 
-1. Forker le repository
-2. Suivre les étapes du README pour lancer le serveur
+## Etape 4: Authentification
+- Mettre en place une page d'authentification dans l'application en utilisant Firebase
+- Offrir la possibilité de créer des comptes, pour les nouveaux utilisateurs
 
-## Partie 2: Intégrer l'API dans votre application
-Dans cette partie, vous allez modifier votre application pour y ajouter une troisième source de données.
+## Etape 5: Mise en relation
+- Ajoutez une fonctionnalité de chat dans l'application en utilisant Firebase
+- Gestion des notifications (eg. messages recus alors que l'application est fermée)
 
-1. Reprendre les sources du TP précédent et modifier le remote pour pointer vers ce repository;
-2. Mettre en place un service permettant de communiquer avec votre serveur Node en utilisant la librairie Retrofit
-3. Configurer le repository et le menu de l'application pour prendre en compte cette 3e source
-4. Synchroniser les données locales et l'API
-
-N.B: Sentez-vous libre d'adapter les sources du serveur en fonction des besoins de votre application.
-
-## Partie 3: Rendre votre application autonome
-Dans cette partie, vous allez modifier le comportement de l'application pour qu'elle détermine automatiquement la bonne source de données à utiliser en fonction de la configuration du téléphone.
-
-1. Mettre en place un mécanisme de monitoring de la connectivité du téléphone.
-   a. Si aucune connexion internet n'est disponible (i.e. mode offline), utiliser la base de données locale
-   b. Sinon, utiliser les données de l'API
-2. Afficher une notification (dans la bare de statut du téléphone) indiquant à l'utilisateur qu'il n'a pas accès à internet et que l'application fonctionne uniquement avec des données locales
-3. Mettre en place un mécanisme de synchronisation automatique, permettant d'envoyer les données modifiées en mode offline vers les serveur quand la connection internet est rétablie
-4. Ajouter un indicateur sur la liste des utilisateurs permettant d'identifier ceux qui ne sont pas encore synchronisés avec l'API
+## Etape 6 : Gestion de liens profonds
+- Mettre en place un mécanisme de lien profond (Deep link) permettant de générer des liens directs vers les profils utilisateurs de l'applcation.
+  Lors du partage du profile de l'utilisateur, ajouter un lien profond permettant d'afficher le profile de l'utilisateur dans l'aplication.
+  Dans la pratique, le lien profond permet de lancer l'application (si elle est installée sur le téléphone) et afficher directement le profile de l'utilisateur.
 
 ## Rendu
-- Veuiller à faire votre dernier commit avant la deadline (voir assignation)
-- Ajouter dans le README le lien vers le repo de votre serveur
-- Ajouter une section Contributeurs
+- Réaliser une vidéo démontrant toutes les fonctionnalittés de l'application
+- Veuillez à effectuer votre dernier commit avant la deadline
+
+## Bonus
+- Toute fonctionnalité supplémentaire permettant d'enrichir l'application vous permettra de gagner des points bonus.
+  Quelques idéées : gestion de calendrier, utiliser compose, ...
+
+## Contraintes
+- Respecter les principes de la clean architecture
+- Respecter les bonnes pratiques en terme de naming de fichiers, classes etc...
+- Bien respecter le principe du single responsability

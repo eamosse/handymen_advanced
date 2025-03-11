@@ -1,4 +1,4 @@
-package com.vama.android.data.api.online
+package com.vama.android.data.online.api
 
 import com.squareup.moshi.Json
 

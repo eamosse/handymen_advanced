@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
-import com.vama.android.data.preferences.DataSource
+import com.vama.android.data.utils.DataSource
 import com.vama.android.handymen.R
 import com.vama.android.handymen.databinding.AddUserFragmentBinding
 import com.vama.android.handymen.ui.home.HomeViewModel
@@ -40,9 +40,6 @@ class AddUserFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupSubmitButton()
         observeAddSuccess()
-
-        // S'assurer que le mode de données en ligne est activé
-        viewModel.setDataSource(DataSource.ONLINE)
     }
 
     private fun setupSubmitButton() {
